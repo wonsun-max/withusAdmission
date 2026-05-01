@@ -1,0 +1,128 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  STUDENT
+  PARENT
+  CONSULTANT
+  SCHOOL
+  SUPER_ADMIN
+}
+
+enum Track {
+  SPECIAL_12YR // 12년 특례
+  SPECIAL_3YR  // 3년 특례
+}
+
+enum DocumentType {
+  TRANSCRIPT // 성적표
+  PASSPORT   // 여권/신분증
+  ACTIVITY   // 활동증빙서류
+  OTHER
+}
+
+enum AccessLevel {
+  VIEW
+  EDIT
+}
+
+// ── 1. USERS ──
+model User {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  role       Role     @default(STUDENT)
+  email      String   @unique
+  fullName   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  studentProfile     StudentProfile?       @relation("StudentToUser")
+  parentOf           StudentProfile[]      @relation("ParentToStudent")
+  consultantStudents ConsultantStudent[]   @relation("ConsultantToMap")
+  uploadedDocs       Document[]            @relation("UploaderToDocument") // 교사가 직접 올린 경우 추적
+}
+
+// ── 2. STUDENT PROFILES ──
+model StudentProfile {
+  userId     String  @id @db.Uuid
+  user       User    @relation("StudentToUser", fields: [userId], references: [id], onDelete: Cascade)
+  
+  parentId   String? @db.Uuid
+  parent     User?   @relation("ParentToStudent", fields: [parentId], references: [id], onDelete: SetNull)
+
+  track      Track?
+  status     String  @default("ONBOARDING") // ONBOARDING, OCR_REVIEW, EVALUATION, STORY_BUILDER, FINALIZED
+
+  // Relations
+  documents  Document[]
+  essays     Essay[]
+  consultants ConsultantStudent[] @relation("StudentToMap")
+}
+
+// ── 3. DOCUMENTS (OCR & STORAGE) ──
+model Document {
+  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studentId    String       @db.Uuid
+  student      StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  uploaderId   String       @db.Uuid
+  uploader     User         @relation("UploaderToDocument", fields: [uploaderId], references: [id]) // 업로더 추적 (학생 본인 or 학교 교사)
+
+  type         DocumentType
+  storagePath  String       // Supabase Storage 경로
+  ocrData      Json?        // Upstage AI가 파싱한 결과물
+  isApproved   Boolean      @default(false)
+
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+// ── 4. ESSAYS (자소서 파이프라인) ──
+model Essay {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studentId      String       @db.Uuid
+  student        StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  guidelineId    String       @db.Uuid
+  guideline      UniversityGuideline @relation(fields: [guidelineId], references: [id])
+
+  masterEn       String?      @db.Text
+  masterKo       String?      @db.Text
+  tailoredResult String?      @db.Text
+  
+  factWarnings   Json?        // 팩트체크 경고 내역 (오류가 없으면 null 또는 빈 배열)
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+// ── 5. CONSULTANT-STUDENT MAPPING (B2B 권한) ──
+model ConsultantStudent {
+  consultantId String       @db.Uuid
+  consultant   User         @relation("ConsultantToMap", fields: [consultantId], references: [id], onDelete: Cascade)
+
+  studentId    String       @db.Uuid
+  student      StudentProfile @relation("StudentToMap", fields: [studentId], references: [userId], onDelete: Cascade)
+
+  accessLevel  AccessLevel  @default(VIEW)
+  createdAt    DateTime     @default(now())
+
+  @@id([consultantId, studentId]) // 복합 키 (Composite Key)
+}
+
+// ── 6. UNIVERSITY GUIDELINES (관리자용) ──
+model UniversityGuideline {
+  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  university   String
+  major        String
+  requirements Json         // 문항, 글자수 제한, 필수 키워드 등
+  isActive     Boolean      @default(true)
+
+  essays       Essay[]
+}
