@@ -7,7 +7,10 @@ export const metadata: Metadata = {
   icons: {
     icon: "/img/logo.png",
     apple: "/img/logo.png",
-  }
+  },
+  verification: {
+    google: "HUk7Ra7LRQgPqTzTVvG-_RkpXnAnDUjsGDHPwSrBITs",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
