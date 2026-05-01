@@ -64,7 +64,7 @@ export function AppNav({ mode, locale = "ko" }: Props) {
       {/* Brand */}
       <div className="brand-block" style={{ borderBottom: "none", paddingBottom: 0 }}>
         <img 
-          src="/logo.png" 
+          src="/img/logo.png" 
           alt="WithUs Admission" 
           style={{ width: "100%", height: "auto", borderRadius: 8 }} 
         />

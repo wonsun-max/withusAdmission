@@ -41,7 +41,7 @@ export default function LoginPage() {
   return (
     <div className="app-shell" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent), radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.05), transparent)" }}>
       <div className="panel pad accent-glow" style={{ maxWidth: 400, width: "90%", textAlign: "center", padding: "48px 32px", borderColor: "var(--gold-glow)" }}>
-        <img src="/logo.png" alt="WithUs Admission" style={{ width: "100%", marginBottom: 32, borderRadius: 12 }} />
+        <img src="/img/logo.png" alt="WithUs Admission" style={{ width: "100%", marginBottom: 32, borderRadius: 12 }} />
         <p className="lead" style={{ fontSize: 15, color: "var(--text-muted)", marginBottom: 32 }}>
           세상에서 가장 똑똑한 입시 컨설턴트,<br />WithUs Admission에 로그인하세요.
         </p>

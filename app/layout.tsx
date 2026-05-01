@@ -5,8 +5,8 @@ export const metadata: Metadata = {
   title: "WithUs Admission | Global Academic Prestige",
   description: "The most advanced AI pipeline for Korean special admissions. Fact-based, prestige-driven.",
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: "/img/logo.png",
+    apple: "/img/logo.png",
   }
 };
 
