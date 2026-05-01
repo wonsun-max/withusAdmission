@@ -16,8 +16,7 @@ export default function LandingPage() {
       }}>
         <div className="container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 28, height: 28, background: "#fff", borderRadius: 6 }} />
-            <span style={{ fontWeight: 800, fontSize: 16, letterSpacing: "-0.02em" }}>WithUs</span>
+            <img src="/logo.png" alt="WithUs Admission" style={{ height: 32, width: "auto" }} />
           </div>
           <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
             <Link href="/login" className="button-modern button-primary" style={{ padding: "8px 20px", fontSize: 14 }}>

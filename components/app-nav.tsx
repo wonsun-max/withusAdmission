@@ -62,12 +62,12 @@ export function AppNav({ mode, locale = "ko" }: Props) {
   return (
     <aside className="sidebar">
       {/* Brand */}
-      <div className="brand-block">
-        <div className="brand-mark">GA</div>
-        <div>
-          <div className="brand-title">Global Admission AI</div>
-          <div className="brand-caption">12특 · 3특 특례 입시 SaaS</div>
-        </div>
+      <div className="brand-block" style={{ borderBottom: "none", paddingBottom: 0 }}>
+        <img 
+          src="/logo.png" 
+          alt="WithUs Admission" 
+          style={{ width: "100%", height: "auto", borderRadius: 8 }} 
+        />
       </div>
 
       {/* Back to home */}

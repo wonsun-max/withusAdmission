@@ -2,9 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Global Admission AI — 12특·3특 특례 입시 SaaS",
-  description:
-    "AI 기반 해외 특례 입시 플랫폼. OCR 성적 추출, 스펙 평가, 자기소개서 생성까지. 없는 스펙은 만들지 않습니다.",
+  title: "WithUs Admission | Global Academic Prestige",
+  description: "The most advanced AI pipeline for Korean special admissions. Fact-based, prestige-driven.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
