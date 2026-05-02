@@ -59,10 +59,14 @@ export async function GET(request: Request) {
         // We continue anyway so the user is at least logged into Supabase
       }
 
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || origin;
-      const redirectUrl = new URL(next, baseUrl);
+      // 1. 현재 요청의 실제 Origin을 우선적으로 사용 (배포 환경 대응)
+      // 2. 환경 변수는 보조적으로 사용
+      const requestUrl = new URL(request.url);
+      const origin = requestUrl.origin;
       
-      console.log(`Redirecting authenticated user to: ${redirectUrl.toString()}`);
+      const redirectUrl = new URL(next, origin);
+      
+      console.log(`Auth success. Redirecting to origin-based URL: ${redirectUrl.toString()}`);
       return NextResponse.redirect(redirectUrl);
     } else {
       console.error("Auth exchange error:", exchangeError);
