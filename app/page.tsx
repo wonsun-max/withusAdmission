@@ -9,50 +9,33 @@ export default function LandingPage() {
     <div className="landing-wrapper">
       <div className="mesh-bg" />
       
-      {/* ── MINIMAL NAV ── */}
-      <nav style={{ 
-        position: "fixed", top: 0, width: "100%", zIndex: 100,
-        display: "flex", justifyContent: "center", padding: "24px 0"
-      }}>
-        <div className="container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <img src="/img/logo.png" alt="WithUs Admission" style={{ height: 32, width: "auto" }} />
-          </div>
-          <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
-            <Link href="/login" className="button-modern button-primary" style={{ padding: "8px 20px", fontSize: 14 }}>
-              Sign In
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <main className="container">
+      <main className="container" style={{ paddingTop: 160 }}>
         {/* ── HERO SECTION ── */}
-        <section className="hero-section">
+        <section className="hero-section" style={{ paddingBottom: 120 }}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <div className="badge">
               <Sparkles size={12} style={{ marginRight: 6, verticalAlign: "middle" }} />
-              Next-Gen Admission Engine
+              2026 Admissions Season Live
             </div>
-            <h1 className="gradient-text">
-              Precision built for<br />global admission.
+            <h1 className="gradient-text" style={{ fontSize: "clamp(48px, 10vw, 96px)", marginBottom: 24 }}>
+              Precision-Engineered<br />for Global Academic Success.
             </h1>
-            <p style={{ marginTop: 32, maxWidth: 640, marginInline: "auto" }}>
-              The most advanced AI pipeline for Korean special admissions. 
-              Built on verified facts, engineered for success.
+            <p style={{ marginTop: 24, fontSize: 20, maxWidth: 720, marginInline: "auto", color: "var(--text-muted)", lineHeight: 1.6 }}>
+              The most advanced AI pipeline for Korean special admissions. <br />
+              Eliminating hallucinations, verifying facts, and building winning narratives.
             </p>
             
-            <div style={{ marginTop: 48, display: "flex", gap: 16, justifyContent: "center" }}>
-              <Link href="/login" className="button-modern button-primary">
-                Get Started
-                <ArrowRight size={16} />
+            <div style={{ marginTop: 56, display: "flex", gap: 20, justifyContent: "center" }}>
+              <Link href="/login" className="button-modern button-primary" style={{ padding: "20px 40px", fontSize: 16 }}>
+                Get Started Now
+                <ArrowRight size={18} />
               </Link>
-              <Link href="/b2b/dashboard" className="button-modern button-secondary">
-                Consultant View
+              <Link href="/login" className="button-modern button-secondary" style={{ padding: "20px 40px", fontSize: 16 }}>
+                View Demo
               </Link>
             </div>
           </motion.div>
@@ -60,33 +43,58 @@ export default function LandingPage() {
 
         {/* ── TRUST SECTION ── */}
         <section style={{ 
-          padding: "40px 0", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)",
-          textAlign: "center", display: "flex", justifyContent: "center", gap: 48, opacity: 0.4, fontSize: 13, fontWeight: 600, letterSpacing: "0.1em"
+          padding: "48px 0", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)",
+          textAlign: "center", display: "flex", justifyContent: "center", gap: 64, opacity: 0.5, fontSize: 14, fontWeight: 700, letterSpacing: "0.2em"
         }}>
           <span>SNU</span>
           <span>YONSEI</span>
           <span>KOREA</span>
           <span>KAIST</span>
           <span>POSTECH</span>
+          <span>EWHA</span>
+        </section>
+
+        {/* ── HOW IT WORKS ── */}
+        <section style={{ padding: "160px 0" }}>
+          <div style={{ textAlign: "center", marginBottom: 80 }}>
+            <h2 style={{ fontSize: 42, fontWeight: 800, marginBottom: 16 }}>The Pipeline</h2>
+            <p style={{ color: "var(--text-muted)", fontSize: 18 }}>From raw transcripts to finalized submissions in 5 steps.</p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 32 }}>
+            {[
+              { step: "01", title: "OCR Review", desc: "Upload PDFs. Our Upstage AI extracts every grade and achievement with 99.9% accuracy." },
+              { step: "02", title: "Branch Evaluation", desc: "Algorithm-driven SWOT analysis tailored for Medical or STEM/Humanities tracks." },
+              { step: "03", title: "Story Builder", desc: "Select from curated themes. Answer deep-dive questions to generate unique evidence." },
+              { step: "04", title: "Master Draft", desc: "AI generates a bilingual master essay that flows naturally and remains fact-checked." },
+              { step: "05", title: "Tailoring", desc: "Final adjustment for specific university prompts with real-time fact warning resolution." }
+            ].map((s, i) => (
+              <div key={i} style={{ padding: 32, background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)", borderRadius: 20 }}>
+                <div style={{ fontSize: 48, fontWeight: 900, color: "rgba(255,255,255,0.05)", marginBottom: -20 }}>{s.step}</div>
+                <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12 }}>{s.title}</h3>
+                <p style={{ fontSize: 15, color: "var(--text-muted)", lineHeight: 1.6 }}>{s.desc}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         {/* ── FEATURES ── */}
-        <div className="feature-grid">
+        <div className="feature-grid" style={{ marginBottom: 160 }}>
           {[
             {
               icon: Zap,
-              title: "Instant OCR Extraction",
-              desc: "Automated transcript parsing with industrial-grade accuracy using Upstage AI."
+              title: "Proprietary AI Pipeline",
+              desc: "Not just a wrapper. We use a multi-stage orchestration that separates facts from creative narrative."
             },
             {
               icon: Shield,
-              title: "Fact-Safe Engine",
-              desc: "Zero hallucination. Every sentence is cross-referenced with your approved records."
+              title: "Zero Hallucination",
+              desc: "Our engine is blocked from generating unsupported claims. Everything is cross-referenced with your OCR data."
             },
             {
               icon: Globe,
-              title: "Multi-Track Logic",
-              desc: "Specialized logic for Medical, STEM, and Humanities across 12-year and 3-year tracks."
+              title: "Global Compliance",
+              desc: "Supports 12-year and 3-year overseas special admission tracks for Korea's top 13 universities."
             }
           ].map((f, i) => (
             <motion.div 
@@ -96,39 +104,35 @@ export default function LandingPage() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
               className="feature-card"
+              style={{ padding: 48 }}
             >
-              <f.icon size={24} color="#fff" style={{ marginBottom: 24 }} />
-              <h3>{f.title}</h3>
-              <p>{f.desc}</p>
+              <f.icon size={32} color="var(--brand)" style={{ marginBottom: 32 }} />
+              <h3 style={{ fontSize: 24, marginBottom: 16 }}>{f.title}</h3>
+              <p style={{ fontSize: 16, color: "var(--text-muted)" }}>{f.desc}</p>
             </motion.div>
           ))}
         </div>
 
         {/* ── CTA ── */}
-        <section style={{ padding: "160px 0", textAlign: "center" }}>
+        <section style={{ paddingBottom: 160, textAlign: "center" }}>
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             style={{ 
-              padding: "80px 40px", background: "linear-gradient(to bottom, #111, #000)", 
-              border: "1px solid var(--border)", borderRadius: 24 
+              padding: "100px 40px", background: "radial-gradient(circle at center, #111, #000)", 
+              border: "1px solid var(--border)", borderRadius: 32, position: "relative", overflow: "hidden"
             }}
           >
-            <h2 style={{ fontSize: 42, fontWeight: 800, marginBottom: 24 }}>Ready to build your narrative?</h2>
-            <Link href="/login" className="button-modern button-primary" style={{ padding: "16px 48px", fontSize: 16 }}>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent, var(--brand), transparent)" }} />
+            <h2 style={{ fontSize: 48, fontWeight: 800, marginBottom: 32 }}>Ready to secure your future?</h2>
+            <Link href="/login" className="button-modern button-primary" style={{ padding: "20px 64px", fontSize: 18 }}>
               Enter Workspace
-              <ChevronRight size={18} />
+              <ChevronRight size={20} style={{ marginLeft: 8 }} />
             </Link>
           </motion.div>
         </section>
       </main>
-
-      <footer style={{ padding: "64px 0", textAlign: "center", borderTop: "1px solid var(--border)", opacity: 0.5 }}>
-        <p style={{ fontSize: 12, letterSpacing: "0.1em" }}>
-          © {new Date().getFullYear()} WITHUS ADMISSION. PURE PERFORMANCE.
-        </p>
-      </footer>
     </div>
   );
 }

@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   },
 };
 
+import { Navbar } from "@/components/layout/navbar";
+import { Footer } from "@/components/layout/footer";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
@@ -24,7 +27,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        <Navbar />
+        <main style={{ flex: 1 }}>
+          {children}
+        </main>
+        <Footer />
+      </body>
     </html>
   );
 }

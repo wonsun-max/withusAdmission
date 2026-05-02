@@ -30,19 +30,16 @@ export async function GET(request: Request) {
         });
       }
 
-      const forwardedHost = request.headers.get("x-forwarded-host");
-      const isLocalEnv = process.env.NODE_ENV === "development";
+      // 환경 변수 또는 요청 origin을 기반으로 베이스 URL 결정
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
+      const redirectUrl = new URL(next, baseUrl);
       
-      if (isLocalEnv) {
-        return NextResponse.redirect(`${origin}${next}`);
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`);
-      } else {
-        return NextResponse.redirect(`${origin}${next}`);
-      }
+      console.log(`Redirecting to: ${redirectUrl.toString()}`);
+      return NextResponse.redirect(redirectUrl);
     }
   }
 
   // 에러 발생 시 로그인 페이지로 리다이렉트
-  return NextResponse.redirect(`${origin}/login?error=auth_failed`);
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
+  return NextResponse.redirect(new URL("/login?error=auth_failed", baseUrl));
 }
