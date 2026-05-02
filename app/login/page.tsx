@@ -9,38 +9,56 @@ export default function LoginPage() {
   const supabase = createClient();
 
   const handleGoogleLogin = async () => {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    console.log("Google login initiated");
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
 
-    if (error) {
-      alert(error.message);
+      if (error) throw error;
+      
+      if (data?.url) {
+        console.log("Redirecting to Google...");
+        window.location.href = data.url;
+      }
+    } catch (error: any) {
+      console.error("Google login error:", error);
+      alert(error.message || "Google 로그인 중 오류가 발생했습니다.");
       setLoading(false);
     }
   };
 
   const handleKakaoLogin = async () => {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "kakao",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    console.log("Kakao login initiated");
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "kakao",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
 
-    if (error) {
-      alert(error.message);
+      if (error) throw error;
+
+      if (data?.url) {
+        console.log("Redirecting to Kakao...");
+        window.location.href = data.url;
+      }
+    } catch (error: any) {
+      console.error("Kakao login error:", error);
+      alert(error.message || "카카오 로그인 중 오류가 발생했습니다.");
       setLoading(false);
     }
   };
 
   return (
     <div className="app-shell" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent), radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.05), transparent)" }}>
-      <div className="panel pad accent-glow" style={{ maxWidth: 400, width: "90%", textAlign: "center", padding: "48px 32px", borderColor: "var(--gold-glow)" }}>
+      <div className="panel pad" style={{ maxWidth: 400, width: "90%", textAlign: "center", padding: "48px 32px" }}>
         <img src="/img/logo.png" alt="WithUs Admission" style={{ width: "100%", marginBottom: 32, borderRadius: 12 }} />
         <p className="lead" style={{ fontSize: 15, color: "var(--text-muted)", marginBottom: 32 }}>
           세상에서 가장 똑똑한 입시 컨설턴트,<br />WithUs Admission에 로그인하세요.
@@ -48,9 +66,10 @@ export default function LoginPage() {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <button 
+            type="button"
             onClick={handleGoogleLogin} 
             disabled={loading}
-            className="button primary" 
+            className="button-modern button-primary" 
             style={{ 
               width: "100%", 
               height: 52, 
@@ -63,7 +82,9 @@ export default function LoginPage() {
               color: "#111",
               border: "1px solid #e2e8f0",
               boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-              fontWeight: 600
+              fontWeight: 600,
+              cursor: loading ? "not-allowed" : "pointer",
+              borderRadius: 12
             }}
           >
             <img src="https://www.google.com/favicon.ico" alt="Google" style={{ width: 18, height: 18 }} />
@@ -71,8 +92,10 @@ export default function LoginPage() {
           </button>
 
           <button 
+            type="button"
             onClick={handleKakaoLogin} 
             disabled={loading}
+            className="button-modern"
             style={{ 
               width: "100%", 
               height: 52, 
@@ -84,10 +107,10 @@ export default function LoginPage() {
               background: "#FEE500",
               color: "#191919",
               border: "none",
-              borderRadius: 8,
+              borderRadius: 12,
               boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
               fontWeight: 600,
-              cursor: "pointer"
+              cursor: loading ? "not-allowed" : "pointer"
             }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -97,8 +120,8 @@ export default function LoginPage() {
           </button>
         </div>
 
-        <p style={{ marginTop: 24, fontSize: 13, color: "var(--subtle)" }}>
-          로그인 시 <a href="#" style={{ textDecoration: "underline" }}>서비스 약관</a> 및 <a href="#" style={{ textDecoration: "underline" }}>개인정보 처리방침</a>에 동의하게 됩니다.
+        <p style={{ marginTop: 24, fontSize: 13, color: "var(--text-muted)" }}>
+          로그인 시 <a href="#" style={{ textDecoration: "underline", color: "inherit" }}>서비스 약관</a> 및 <a href="#" style={{ textDecoration: "underline", color: "inherit" }}>개인정보 처리방침</a>에 동의하게 됩니다.
         </p>
       </div>
     </div>
