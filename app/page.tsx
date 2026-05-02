@@ -1,16 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronRight, Zap, Globe, Shield, Sparkles } from "lucide-react";
 
-export default function LandingPage() {
+function AuthHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Handle accidental redirects to root with auth code
   useEffect(() => {
     const code = searchParams.get("code");
     if (code) {
@@ -20,8 +19,16 @@ export default function LandingPage() {
     }
   }, [searchParams, router]);
 
+  return null;
+}
+
+export default function LandingPage() {
   return (
     <div className="landing-wrapper">
+      <Suspense fallback={null}>
+        <AuthHandler />
+      </Suspense>
+      <div className="mesh-bg" />
       <div className="mesh-bg" />
       
       <main className="container" style={{ paddingTop: 160 }}>
