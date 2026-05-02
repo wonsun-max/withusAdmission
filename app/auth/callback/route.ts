@@ -22,6 +22,7 @@ export async function GET(request: Request) {
             fullName: user.user_metadata.full_name || user.email!.split("@")[0] 
           },
           create: {
+            id: user.id, // Supabase UUID와 일치시킴
             email: user.email!,
             fullName: user.user_metadata.full_name || user.email!.split("@")[0],
             role: "STUDENT",
