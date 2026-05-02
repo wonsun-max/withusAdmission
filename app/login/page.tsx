@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/client";
 import { LogIn } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 export default function LoginPage() {
@@ -121,7 +122,7 @@ export default function LoginPage() {
         </div>
 
         <p style={{ marginTop: 24, fontSize: 13, color: "var(--text-muted)" }}>
-          로그인 시 <a href="#" style={{ textDecoration: "underline", color: "inherit" }}>서비스 약관</a> 및 <a href="#" style={{ textDecoration: "underline", color: "inherit" }}>개인정보 처리방침</a>에 동의하게 됩니다.
+          로그인 시 <Link href="/terms" style={{ textDecoration: "underline", color: "inherit" }}>서비스 약관</Link> 및 <Link href="/privacy" style={{ textDecoration: "underline", color: "inherit" }}>개인정보 처리방침</Link>에 동의하게 됩니다.
         </p>
       </div>
     </div>
