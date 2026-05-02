@@ -1,10 +1,25 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronRight, Zap, Globe, Shield, Sparkles } from "lucide-react";
 
 export default function LandingPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Handle accidental redirects to root with auth code
+  useEffect(() => {
+    const code = searchParams.get("code");
+    if (code) {
+      console.log("Auth code detected on landing page, redirecting to callback...");
+      const next = searchParams.get("next") || "/b2c/workspace";
+      router.push(`/auth/callback?code=${code}&next=${next}`);
+    }
+  }, [searchParams, router]);
+
   return (
     <div className="landing-wrapper">
       <div className="mesh-bg" />
