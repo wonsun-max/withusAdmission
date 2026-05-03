@@ -9,21 +9,35 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 
+  const getURL = () => {
+    let url =
+      process?.env?.NEXT_PUBLIC_APP_URL || // Set this to your site URL in production
+      process?.env?.NEXT_PUBLIC_VERCEL_URL || // Automatically set by Vercel
+      window.location.origin;
+    
+    // Make sure to include `https://` when not localhost
+    url = url.includes("http") ? url : `https://${url}`;
+    // Make sure to include a trailing slash
+    url = url.charAt(url.length - 1) === "/" ? url : `${url}/`;
+    return url;
+  };
+
   const handleGoogleLogin = async () => {
-    console.log("Google login initiated");
+    const redirectTo = `${getURL()}auth/callback`;
+    console.log("Google login initiated, redirecting to:", redirectTo);
     try {
       setLoading(true);
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo,
         },
       });
 
       if (error) throw error;
       
       if (data?.url) {
-        console.log("Redirecting to Google...");
+        console.log("Redirecting to Google Auth URL...");
         window.location.href = data.url;
       }
     } catch (error: any) {
@@ -34,20 +48,21 @@ export default function LoginPage() {
   };
 
   const handleKakaoLogin = async () => {
-    console.log("Kakao login initiated");
+    const redirectTo = `${getURL()}auth/callback`;
+    console.log("Kakao login initiated, redirecting to:", redirectTo);
     try {
       setLoading(true);
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "kakao",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo,
         },
       });
 
       if (error) throw error;
 
       if (data?.url) {
-        console.log("Redirecting to Kakao...");
+        console.log("Redirecting to Kakao Auth URL...");
         window.location.href = data.url;
       }
     } catch (error: any) {
