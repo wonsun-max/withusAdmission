@@ -51,13 +51,14 @@ Our proprietary 5-step pipeline ensures every essay is built on a foundation of 
     ```
 
 2.  **Environment Variables**:
-    Create a `.env` file (refer to `README.md` for required keys):
+    Create a `.env` file (refer to `.env.example` for required keys):
     ```env
     DATABASE_URL=
     NEXT_PUBLIC_SUPABASE_URL=
     NEXT_PUBLIC_SUPABASE_ANON_KEY=
     OPENAI_API_KEY=
     OCR_PROVIDER_API_KEY=
+    NEXT_PUBLIC_KAKAO_JS_KEY=
     ```
 
 3.  **Database Setup**:
