@@ -75,7 +75,19 @@ export default function TailoringPage() {
             </p>
           </div>
         ) : tailoredData ? (
-          <TailoringPanel locale={locale} guideline={{ university: "University", major: "Major" } as any} tailoredEssay={tailoredData.tailoredResult} />
+          <TailoringPanel 
+            locale={locale} 
+            guideline={{ university: "University", major: "Major", universityKo: "대학교" } as any} 
+            tailoredEssay={typeof tailoredData.tailoredResult === 'string' ? {
+              university: "University",
+              prompt: "Prompt",
+              limit: "1000",
+              essay: tailoredData.tailoredResult,
+              essayByLanguage: { ko: tailoredData.tailoredResult, en: tailoredData.tailoredResult },
+              factCheck: { status: "passed", warnings: [], blockingReasons: [] },
+              submissionGate: { canSubmit: true, label: { ko: "제출 가능", en: "Ready" }, reasons: [] }
+            } as any : tailoredData.tailoredResult} 
+          />
         ) : (
           <div className="panel pad">
             <p>Ready to tailor. Make sure you have a generated essay.</p>

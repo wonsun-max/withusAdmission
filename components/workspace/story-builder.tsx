@@ -33,6 +33,14 @@ export function StoryBuilder({ locale, themes, selectedThemeId, storyAnswer, onS
   const t = copy[locale];
   const selected = themes.find((th) => th.id === selectedThemeId) ?? themes[0];
 
+  if (!selected) {
+    return (
+      <div className="panel pad">
+        <p>{locale === "ko" ? "분석된 테마가 없습니다. 이전 단계를 확인해주세요." : "No themes found. Please check previous steps."}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="panel pad">
       <div className="panel-header">

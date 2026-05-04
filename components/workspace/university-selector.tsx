@@ -11,8 +11,8 @@ const sourceLabel: Record<string, { en: string; ko: string }> = {
 };
 
 const trackLabel: Record<string, { en: string; ko: string }> = {
-  "12-year": { en: "12-Year Track (12특)", ko: "12년 특례 (12특)" },
-  "3-year":  { en: "3-Year Track (3특)",   ko: "3년 특례 (3특)" },
+  SPECIAL_12YR: { en: "12-Year Track (12특)", ko: "12년 특례 (12특)" },
+  SPECIAL_3YR:  { en: "3-Year Track (3특)",   ko: "3년 특례 (3특)" },
 };
 
 type Props = {
