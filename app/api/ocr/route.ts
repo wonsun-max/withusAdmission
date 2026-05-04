@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       documentId: doc.id,
+      studentId: student.id,
       ocrData: ocrResult,
     });
   } catch (error: any) {

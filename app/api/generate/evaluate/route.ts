@@ -11,12 +11,14 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. 학생 데이터 및 OCR 데이터 조회
+    console.log("Evaluating studentId:", studentId);
     const student = await db.studentProfile.findUnique({
       where: { userId: studentId },
       include: { documents: true },
     });
 
     if (!student) {
+      console.error("Student not found for ID:", studentId);
       return NextResponse.json({ error: "Student not found" }, { status: 404 });
     }
 
