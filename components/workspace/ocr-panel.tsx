@@ -61,8 +61,7 @@ export function OcrPanel({ locale, profile, approved, onApprove }: Props) {
 
       const data = await res.json();
       if (data.success) {
-        setOcrResult(data.ocrData);
-        // 실제로는 여기서 상위 상태를 업데이트해야 함
+        setOcrResult(data); // Store the whole response object { success, documentId, studentId, ocrData }
       } else {
         alert(data.error || "OCR Failed");
       }
@@ -74,7 +73,7 @@ export function OcrPanel({ locale, profile, approved, onApprove }: Props) {
     }
   };
 
-  const displayData = ocrResult?.elements?.[0]?.table?.rows || profile.gpaData;
+  const displayData = ocrResult?.ocrData?.elements?.[0]?.table?.rows || profile.gpaData;
 
   return (
     <div className={`panel pad ${approved ? "accent-glow" : ""}`}>
