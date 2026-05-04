@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { ExternalLink, FileSearch } from "lucide-react";
 import type { Locale, StudentProfile, EvaluationResult, UniversityGuideline } from "@/lib/admission-types";
 import { universityGuidelines } from "@/lib/mock-data";
@@ -42,9 +43,21 @@ const copy = {
 } as const;
 
 export function UniversitySelector({ locale, profile, evaluation, guideline, targetGuidelineId, onSelectGuideline }: Props) {
+  const [dbGuidelines, setDbGuidelines] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/guidelines")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setDbGuidelines(data);
+      })
+      .catch(console.error);
+  }, []);
+
+  const allGuidelines = dbGuidelines.length > 0 ? dbGuidelines : universityGuidelines;
   const t = copy[locale];
-  const src = guideline.source;
-  const srcStatus = src.status as keyof typeof sourceLabel;
+  const src = guideline.source || { status: "needs-official-pdf", notes: "No source data" };
+  const srcStatus = (src.status || "needs-official-pdf") as keyof typeof sourceLabel;
 
   return (
     <div className="panel pad">
@@ -65,9 +78,9 @@ export function UniversitySelector({ locale, profile, evaluation, guideline, tar
             value={targetGuidelineId}
             onChange={(e) => onSelectGuideline(e.target.value)}
           >
-            {universityGuidelines.map((g) => (
+            {allGuidelines.map((g) => (
               <option key={g.id} value={g.id}>
-                {locale === "ko" ? g.universityKo : g.university} — {g.major} ({g.track})
+                {locale === "ko" ? (g.universityKo || g.university) : g.university} — {g.major} ({g.track || "SPECIAL_12YR"})
               </option>
             ))}
           </select>

@@ -53,7 +53,13 @@ export async function POST(req: NextRequest) {
 
     const result = JSON.parse(response.choices[0].message.content || "{}");
 
-    // 3. (옵션) 결과를 DB에 캐싱하거나 업데이트할 수 있음
+    // 3. 결과를 DB에 업데이트 (상태 변경 및 분석 데이터 캐싱 가능)
+    await db.studentProfile.update({
+      where: { userId: studentId },
+      data: {
+        status: "EVALUATION_COMPLETE",
+      },
+    });
     
     return NextResponse.json(result);
   } catch (error: any) {

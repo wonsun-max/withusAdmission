@@ -17,11 +17,19 @@ export default function OcrPage() {
   const { locale, approved, targetGuidelineId } = state;
 
   const guideline = useMemo(
-    () => universityGuidelines.find((g) => g.id === targetGuidelineId) ?? universityGuidelines[0],
+    () => universityGuidelines.find((g) => g.id === targetGuidelineId) || universityGuidelines[0] || {
+      id: "",
+      university: "Pending Selection",
+      universityKo: "선택 대기 중",
+      major: "Major",
+      track: "SPECIAL_12YR",
+      documentRequirements: [],
+      source: { status: "needs-official-pdf" }
+    },
     [targetGuidelineId]
   );
   const profile = useMemo(
-    () => ({ ...sampleProfile, targetMajor: guideline.major, track: guideline.track }),
+    () => ({ ...sampleProfile, targetMajor: guideline?.major || "", track: guideline?.track || "SPECIAL_12YR" }),
     [guideline]
   );
   const evaluation = useMemo(() => evaluateProfile(profile), [profile]);

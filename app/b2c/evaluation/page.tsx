@@ -76,7 +76,24 @@ export default function EvaluationPage() {
             <p>{locale === "ko" ? "AI가 스펙을 분석 중입니다..." : "AI is analyzing your profile..."}</p>
           </div>
         ) : evaluation ? (
-          <ProfileEvaluation locale={locale} profile={{ ...sampleProfile, track: "SPECIAL_12YR" }} evaluation={evaluation} />
+          <ProfileEvaluation 
+            locale={locale} 
+            profile={{ 
+              id: studentId, 
+              name: "Student", 
+              track: state.track || "SPECIAL_12YR",
+              dateOfBirth: "",
+              targetMajor: "",
+              countryContext: "",
+              parentConsent: { status: "not-required", requiredBecause: { en: "", ko: "" } },
+              accountLinks: [],
+              gpaData: [],
+              standardizedTests: [],
+              extracurriculars: [],
+              approvedFacts: []
+            }} 
+            evaluation={evaluation} 
+          />
         ) : (
           <div className="panel pad">
             <p>Failed to load evaluation.</p>

@@ -33,7 +33,7 @@ enum AccessLevel {
 
 // ── 1. USERS ──
 model User {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id         String   @id @default(cuid())
   role       Role     @default(STUDENT)
   email      String   @unique
   fullName   String
@@ -49,10 +49,10 @@ model User {
 
 // ── 2. STUDENT PROFILES ──
 model StudentProfile {
-  userId     String  @id @db.Uuid
+  userId     String  @id
   user       User    @relation("StudentToUser", fields: [userId], references: [id], onDelete: Cascade)
   
-  parentId   String? @db.Uuid
+  parentId   String?
   parent     User?   @relation("ParentToStudent", fields: [parentId], references: [id], onDelete: SetNull)
 
   track      Track?
@@ -66,11 +66,11 @@ model StudentProfile {
 
 // ── 3. DOCUMENTS (OCR & STORAGE) ──
 model Document {
-  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  studentId    String       @db.Uuid
+  id           String       @id @default(cuid())
+  studentId    String
   student      StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
 
-  uploaderId   String       @db.Uuid
+  uploaderId   String
   uploader     User         @relation("UploaderToDocument", fields: [uploaderId], references: [id]) // 업로더 추적 (학생 본인 or 학교 교사)
 
   type         DocumentType
@@ -84,11 +84,11 @@ model Document {
 
 // ── 4. ESSAYS (자소서 파이프라인) ──
 model Essay {
-  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  studentId      String       @db.Uuid
+  id             String       @id @default(cuid())
+  studentId      String
   student        StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
 
-  guidelineId    String       @db.Uuid
+  guidelineId    String
   guideline      UniversityGuideline @relation(fields: [guidelineId], references: [id])
 
   masterEn       String?      @db.Text
@@ -103,10 +103,10 @@ model Essay {
 
 // ── 5. CONSULTANT-STUDENT MAPPING (B2B 권한) ──
 model ConsultantStudent {
-  consultantId String       @db.Uuid
+  consultantId String
   consultant   User         @relation("ConsultantToMap", fields: [consultantId], references: [id], onDelete: Cascade)
 
-  studentId    String       @db.Uuid
+  studentId    String
   student      StudentProfile @relation("StudentToMap", fields: [studentId], references: [userId], onDelete: Cascade)
 
   accessLevel  AccessLevel  @default(VIEW)
@@ -117,7 +117,7 @@ model ConsultantStudent {
 
 // ── 6. UNIVERSITY GUIDELINES (관리자용) ──
 model UniversityGuideline {
-  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id           String       @id
   university   String
   major        String
   requirements Json         // 문항, 글자수 제한, 필수 키워드 등
