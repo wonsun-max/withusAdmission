@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AIService } from "@/lib/services/ai-service";
+import { createClient } from "@/utils/supabase/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const { studentId } = await req.json();
-
-    if (!studentId) {
-      return NextResponse.json({ error: "No studentId provided" }, { status: 400 });
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const studentId = user.id;
 
     const result = await AIService.evaluateProfile(studentId);
     

@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { openai } from "@/lib/openai";
 import { db } from "@/lib/db";
+import { createClient } from "@/utils/supabase/server";
 
 export async function POST(req: NextRequest) {
   try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const { essayId } = await req.json();
 
     if (!essayId) {
@@ -20,7 +25,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    if (!essay) {
+    if (!essay || essay.studentId !== user.id) {
       return NextResponse.json({ error: "Essay not found" }, { status: 404 });
     }
 

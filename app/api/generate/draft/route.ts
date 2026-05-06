@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { openai } from "@/lib/openai";
 import { db } from "@/lib/db";
+import { createClient } from "@/utils/supabase/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const { studentId, guidelineId, answers } = await req.json();
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    if (!studentId || !guidelineId) {
+    const studentId = user.id;
+    const { guidelineId, answers } = await req.json();
+
+    if (!guidelineId) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 

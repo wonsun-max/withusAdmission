@@ -11,26 +11,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // In a real production app, we would get the studentId from the auth session.
-    // For now, we'll try to find an existing student or create a dummy one for the demo.
-    let student = await db.user.findFirst({
-      where: { role: "STUDENT" },
-    });
+    const { createClient } = await import("@/utils/supabase/server");
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const student = await db.user.findUnique({ where: { id: user.id } });
     if (!student) {
-      student = await db.user.create({
-        data: {
-          email: "student@withus.example",
-          fullName: "Demo Student",
-          role: "STUDENT",
-          studentProfile: {
-            create: {
-              track: "SPECIAL_12YR",
-              status: "ONBOARDING",
-            },
-          },
-        },
-      });
+      return NextResponse.json({ error: "Student not found" }, { status: 404 });
     }
 
     const result = await OCRService.processUpload(student.id, file);
