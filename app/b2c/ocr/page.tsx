@@ -1,23 +1,29 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { AppNav } from "@/components/app-nav";
 import { OcrPanel } from "@/components/workspace/ocr-panel";
 import { UniversitySelector } from "@/components/workspace/university-selector";
 import { DocumentChecklist } from "@/components/workspace/document-checklist";
 import { AccountLinks } from "@/components/workspace/account-links";
 import { useWorkspaceState } from "@/lib/workspace-state";
-import { evaluateProfile } from "@/lib/ai-pipeline";
-import { sampleProfile, universityGuidelines } from "@/lib/mock-data";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 export default function OcrPage() {
   const { state, update, ready } = useWorkspaceState();
   const { locale, approved, targetGuidelineId } = state;
+  const [guidelines, setGuidelines] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/guidelines")
+      .then((res) => res.json())
+      .then((data) => setGuidelines(data))
+      .catch((err) => console.error("Failed to fetch guidelines", err));
+  }, []);
 
   const guideline = useMemo(
-    () => universityGuidelines.find((g) => g.id === targetGuidelineId) || universityGuidelines[0] || {
+    () => guidelines.find((g) => g.id === targetGuidelineId) || guidelines[0] || {
       id: "",
       university: "Pending Selection",
       universityKo: "선택 대기 중",
@@ -26,13 +32,28 @@ export default function OcrPage() {
       documentRequirements: [],
       source: { status: "needs-official-pdf" }
     },
-    [targetGuidelineId]
+    [targetGuidelineId, guidelines]
   );
+
   const profile = useMemo(
-    () => ({ ...sampleProfile, targetMajor: guideline?.major || "", track: guideline?.track || "SPECIAL_12YR" }),
-    [guideline]
+    () => ({
+      id: state.studentId || "pending",
+      name: "Student",
+      track: state.track || guideline.track || "SPECIAL_12YR",
+      targetMajor: guideline.major || "",
+      dateOfBirth: "",
+      countryContext: "",
+      parentConsent: { status: "not-required", requiredBecause: { en: "", ko: "" } },
+      accountLinks: [],
+      gpaData: [],
+      standardizedTests: [],
+      extracurriculars: [],
+      approvedFacts: []
+    } as any),
+    [state, guideline]
   );
-  const evaluation = useMemo(() => evaluateProfile(profile), [profile]);
+
+  const evaluation = useMemo(() => ({ mode: "general", strengths: [], weaknesses: [], overallSummary: "" } as any), []);
 
   if (!ready) return null;
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { OCRService } from "@/lib/services/ocr-service";
 import { db } from "@/lib/db";
-import { parseDocumentWithUpstage } from "@/lib/upstage";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,14 +11,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // 1. Upstage OCR 파싱
-    const ocrResult = await parseDocumentWithUpstage(file);
-
-    // 2. 가공 (실제 프로덕션에서는 더 정교한 매핑 필요)
-    // Upstage 응답 구조에 따라 데이터를 가공합니다.
-    
-    // 3. DB 저장 (테스트를 위해 더미 유저 생성 또는 기존 유저 사용)
-    // 실제로는 auth session에서 유저 ID를 가져와야 합니다.
+    // In a real production app, we would get the studentId from the auth session.
+    // For now, we'll try to find an existing student or create a dummy one for the demo.
     let student = await db.user.findFirst({
       where: { role: "STUDENT" },
     });
@@ -26,35 +20,25 @@ export async function POST(req: NextRequest) {
     if (!student) {
       student = await db.user.create({
         data: {
-          email: "test-student@example.com",
-          fullName: "테스트 학생",
+          email: "student@withus.example",
+          fullName: "Demo Student",
           role: "STUDENT",
           studentProfile: {
             create: {
               track: "SPECIAL_12YR",
-              status: "OCR_REVIEW",
+              status: "ONBOARDING",
             },
           },
         },
       });
     }
 
-    const doc = await db.document.create({
-      data: {
-        studentId: student.id,
-        uploaderId: student.id,
-        type: "TRANSCRIPT",
-        storagePath: `transcripts/${Date.now()}_${file.name}`,
-        ocrData: ocrResult,
-        isApproved: false,
-      },
-    });
+    const result = await OCRService.processUpload(student.id, file);
 
     return NextResponse.json({
       success: true,
-      documentId: doc.id,
+      ...result,
       studentId: student.id,
-      ocrData: ocrResult,
     });
   } catch (error: any) {
     console.error("OCR Route Error:", error);

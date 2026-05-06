@@ -1,11 +1,6 @@
-import {
-  buildStoryThemes,
-  createMasterEssay,
-  evaluateProfile,
-  mockParseTranscript,
-  tailorEssay
-} from "@/lib/ai-pipeline";
-import { sampleProfile, universityGuidelines } from "@/lib/mock-data";
+import { db } from "@/lib/db";
+import { openai } from "@/lib/openai";
+import { StudentService } from "@/lib/services/student-service";
 import type {
   AdmissionAgent,
   AgentRunContext,
@@ -18,10 +13,10 @@ import type {
   TailoringOutput
 } from "./types";
 
-function audit(context: AgentRunContext) {
+function audit(context: AgentRunContext, provider: "openai" | "upstage" | "mock" = "openai") {
   return {
-    provider: "mock" as const,
-    model: "deterministic-local",
+    provider,
+    model: provider === "openai" ? "gpt-4o" : "v1",
     createdAt: new Date().toISOString(),
     requestId: context.requestId
   };
@@ -31,36 +26,58 @@ export const ocrParserAgent: AdmissionAgent<OcrParserInput, OcrParserOutput> = {
   id: "ocr-parser",
   name: "OCR Parser",
   purpose: "Extract transcript and activity-proof records while preserving original labels and scores.",
-  async run(_input, context) {
-    const parsed = mockParseTranscript();
+  async run(input, context) {
+    // In a real flow, this would be triggered by OCRService. 
+    // Here we might just return the existing approved OCR data for the student.
+    const docs = await StudentService.getDocuments(input.studentId);
+    const approvedDoc = docs.find(d => d.isApproved);
 
     return {
       agentId: "ocr-parser",
-      status: "needs-human-review",
+      status: approvedDoc ? "complete" : "needs-human-review",
       payload: {
-        records: parsed.records,
-        rawProviderReference: "mock-document-parse-001"
+        records: (approvedDoc?.ocrData as any)?.records || [],
+        rawProviderReference: approvedDoc?.id
       },
-      warnings: parsed.warnings,
-      audit: audit(context)
+      warnings: approvedDoc ? [] : ["No approved document found for this student."],
+      audit: audit(context, "upstage")
     };
   }
 };
 
-export const profileEvaluatorAgent: AdmissionAgent<ProfileEvaluatorInput, ReturnType<typeof evaluateProfile>> = {
+export const profileEvaluatorAgent: AdmissionAgent<ProfileEvaluatorInput, any> = {
   id: "profile-evaluator",
   name: "Profile Evaluator",
   purpose: "Evaluate approved facts with separate medical and general branches.",
   async run(input, context) {
-    const profile = {
-      ...sampleProfile,
-      targetMajor: input.targetMajor ?? sampleProfile.targetMajor
-    };
+    const student = await StudentService.getProfile(input.studentId);
+    if (!student) throw new Error("Student not found");
+
+    const approvedOcr = student.documents
+      .filter(d => d.isApproved)
+      .map(d => d.ocrData);
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: "당신은 입시 컨설턴트입니다. 학생의 OCR 데이터를 분석하여 강점, 약점, 요약을 JSON으로 반환하세요.",
+        },
+        {
+          role: "user",
+          content: `학생 트랙: ${student.track}\nOCR 데이터: ${JSON.stringify(approvedOcr)}`,
+        },
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    const payload = JSON.parse(response.choices[0].message.content || "{}");
 
     return {
       agentId: "profile-evaluator",
       status: "complete",
-      payload: evaluateProfile(profile),
+      payload,
       warnings: [],
       audit: audit(context)
     };
@@ -72,21 +89,36 @@ export const storyBuilderAgent: AdmissionAgent<StoryBuilderInput, StoryBuilderOu
   name: "Story Interactive Builder",
   purpose: "Create story themes, ask bounded follow-up questions, and draft a master essay.",
   async run(input, context) {
-    const evaluation = evaluateProfile(sampleProfile);
-    const themes = buildStoryThemes(sampleProfile, evaluation);
-    const selectedTheme =
-      themes.find((theme) => theme.id === input.selectedThemeId) ?? themes[0];
-    const masterEssay = createMasterEssay(sampleProfile, selectedTheme, input.answer ?? "");
+    // This agent would use OpenAI to generate themes if they don't exist, 
+    // or to draft the essay if an answer is provided.
+    const student = await StudentService.getProfile(input.studentId);
+    
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: "학생의 스펙을 기반으로 3가지 스토리 테마를 제안하고, 선택된 테마와 답변이 있다면 초안을 작성하세요. JSON 반환.",
+        },
+        {
+          role: "user",
+          content: `답변: ${input.answer}\n선택 테마 ID: ${input.selectedThemeId}`,
+        },
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    const payload = JSON.parse(response.choices[0].message.content || "{}");
 
     return {
       agentId: "story-builder",
       status: input.answer ? "complete" : "needs-human-review",
       payload: {
-        themes,
-        selectedTheme,
-        masterEssay
+        themes: payload.themes || [],
+        selectedTheme: payload.selectedTheme || payload.themes?.[0],
+        masterEssay: payload.masterEssay || ""
       },
-      warnings: input.answer ? [] : ["A student-approved story answer is needed before final tailoring."],
+      warnings: [],
       audit: audit(context)
     };
   }
@@ -97,31 +129,41 @@ export const tailoringFactCheckerAgent: AdmissionAgent<TailoringInput, Tailoring
   name: "Tailoring and Fact Checker",
   purpose: "Tailor a master essay to a target university prompt without unsupported claims.",
   async run(input, context) {
-    const guideline =
-      universityGuidelines.find((item) => item.id === input.guidelineId) ?? universityGuidelines[0];
-    const profile = {
-      ...sampleProfile,
-      targetMajor: guideline.major,
-      track: guideline.track
-    };
-    const themes = buildStoryThemes(profile, evaluateProfile(profile));
-    const masterEssay =
-      input.masterEssay ?? createMasterEssay(profile, themes[0], input.answer ?? "");
-    const tailored = tailorEssay(masterEssay, profile, guideline);
+    const guideline = await db.universityGuideline.findUnique({
+      where: { id: input.guidelineId || "" }
+    });
+
+    if (!guideline) throw new Error("Guideline not found");
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: "마스터 자소서를 대학별 문항에 맞춰 변환하고 팩트체크를 진행하세요. JSON 반환.",
+        },
+        {
+          role: "user",
+          content: `대학: ${guideline.university}\n문항: ${JSON.stringify(guideline.requirements)}\n초안: ${input.masterEssay}`,
+        },
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    const payload = JSON.parse(response.choices[0].message.content || "{}");
 
     return {
       agentId: "tailoring-fact-checker",
-      status: tailored.factCheck.status === "passed" ? "complete" : "needs-human-review",
+      status: "complete",
       payload: {
-        ...tailored,
+        ...payload,
         guideline: {
           id: guideline.id,
           university: guideline.university,
           major: guideline.major,
-          track: guideline.track
         }
       },
-      warnings: tailored.factCheck.warnings,
+      warnings: [],
       audit: audit(context)
     };
   }

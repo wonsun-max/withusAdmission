@@ -5,16 +5,15 @@ import { AppNav } from "@/components/app-nav";
 import { ProfileEvaluation } from "@/components/workspace/profile-evaluation";
 import { useWorkspaceState } from "@/lib/workspace-state";
 import { evaluateProfileAPI } from "@/lib/ai-pipeline";
-import { sampleProfile } from "@/lib/mock-data";
 import Link from "next/link";
 import { ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 
 export default function EvaluationPage() {
   const { state, update, ready } = useWorkspaceState();
-  const { locale, approved, studentId } = state;
+  const { locale, approved, studentId, evaluationData } = state;
   
   const [isEvaluating, setIsEvaluating] = useState(false);
-  const [evaluation, setEvaluation] = useState<any>(null);
+  const [evaluation, setEvaluation] = useState<any>(evaluationData || null);
 
   useEffect(() => {
     if (ready && approved && studentId && !evaluation && !isEvaluating) {
@@ -79,7 +78,7 @@ export default function EvaluationPage() {
           <ProfileEvaluation 
             locale={locale} 
             profile={{ 
-              id: studentId, 
+              id: studentId || "", 
               name: "Student", 
               track: state.track || "SPECIAL_12YR",
               dateOfBirth: "",

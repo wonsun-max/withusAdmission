@@ -1,11 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
 import { AppNav } from "@/components/app-nav";
 import { StoryBuilder } from "@/components/workspace/story-builder";
 import { useWorkspaceState } from "@/lib/workspace-state";
-import { buildStoryThemes, evaluateProfile } from "@/lib/ai-pipeline";
-import { sampleProfile, universityGuidelines } from "@/lib/mock-data";
 import Link from "next/link";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 

@@ -6,6 +6,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { universityGuidelines } from "@/lib/mock-data";
+import type { AdmissionTrack } from "./admission-types";
 
 export type WorkspaceState = {
   approved: boolean;
@@ -14,6 +15,7 @@ export type WorkspaceState = {
   storyAnswer: string;
   locale: "ko" | "en";
   studentId?: string;
+  track?: AdmissionTrack;
   essayId?: string;
   evaluationData?: any;
 };
@@ -25,6 +27,7 @@ const DEFAULTS: WorkspaceState = {
   storyAnswer:
     "During our bioinformatics club project, I noticed that a clean dataset changed the quality of every conclusion. I rebuilt the spreadsheet, checked missing labels, and learned that scientific confidence depends on disciplined preparation before analysis.",
   locale: "ko",
+  track: "SPECIAL_12YR",
 };
 
 const KEY = "ga_workspace_state";
@@ -66,5 +69,25 @@ export function useWorkspaceState() {
     });
   }, []);
 
-  return { state, update, ready };
+  const syncWithBackend = useCallback(async (userId: string) => {
+    try {
+      const res = await fetch(`/api/student/profile?userId=${userId}`);
+      if (!res.ok) throw new Error("Failed to sync profile");
+      const data = await res.json();
+      
+      const patch: Partial<WorkspaceState> = {
+        studentId: data.userId,
+        track: data.track,
+        approved: data.documents?.some((d: any) => d.isApproved) || false,
+        // Map other fields as necessary
+      };
+      
+      update(patch);
+      return data;
+    } catch (err) {
+      console.error("Sync error:", err);
+    }
+  }, [update]);
+
+  return { state, update, syncWithBackend, ready };
 }

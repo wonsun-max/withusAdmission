@@ -10,17 +10,18 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 
 export default function TailoringPage() {
   const { state, ready } = useWorkspaceState();
-  const { locale, approved, storyAnswer, essayId } = state;
+  const { locale, approved, storyAnswer, studentId, targetGuidelineId } = state;
   
   const [isTailoring, setIsTailoring] = useState(false);
   const [tailoredData, setTailoredData] = useState<any>(null);
 
   useEffect(() => {
-    if (ready && approved && storyAnswer && essayId && !tailoredData && !isTailoring) {
+    if (ready && approved && storyAnswer && studentId && targetGuidelineId && !tailoredData && !isTailoring) {
       const fetchTailor = async () => {
         setIsTailoring(true);
         try {
-          const result = await tailorEssayAPI(essayId);
+          // We pass the master essay or it could be fetched by the API from DB
+          const result = await tailorEssayAPI(studentId, targetGuidelineId, ""); 
           setTailoredData(result);
         } catch (err) {
           console.error(err);
@@ -30,7 +31,7 @@ export default function TailoringPage() {
       };
       fetchTailor();
     }
-  }, [ready, approved, storyAnswer, essayId, tailoredData, isTailoring]);
+  }, [ready, approved, storyAnswer, studentId, targetGuidelineId, tailoredData, isTailoring]);
 
   if (!ready) return null;
 
