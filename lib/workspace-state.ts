@@ -57,7 +57,8 @@ export function useWorkspaceState() {
 
   useEffect(() => {
     setState(read());
-    setReady(true);
+    // Auto-sync on mount to prevent old mock data ("empty") from persisting
+    syncWithBackend().then(() => setReady(true));
   }, []);
 
   const update = useCallback((patch: Partial<WorkspaceState>) => {
@@ -68,9 +69,9 @@ export function useWorkspaceState() {
     });
   }, []);
 
-  const syncWithBackend = useCallback(async (userId: string) => {
+  const syncWithBackend = useCallback(async () => {
     try {
-      const res = await fetch(`/api/student/profile?userId=${userId}`);
+      const res = await fetch(`/api/student/profile`);
       if (!res.ok) throw new Error("Failed to sync profile");
       const data = await res.json();
       
