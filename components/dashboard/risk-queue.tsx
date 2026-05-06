@@ -1,7 +1,9 @@
 "use client";
 
 import { ShieldAlert } from "lucide-react";
-import { consultantStudents } from "@/lib/mock-data";
+
+// TODO: Fetch from /api/b2b/students
+const consultantStudents: any[] = [];
 
 type Props = { locale: "en" | "ko" };
 

@@ -5,7 +5,6 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { universityGuidelines } from "@/lib/mock-data";
 import type { AdmissionTrack } from "./admission-types";
 
 export type WorkspaceState = {
@@ -22,7 +21,7 @@ export type WorkspaceState = {
 
 const DEFAULTS: WorkspaceState = {
   approved: false,
-  targetGuidelineId: universityGuidelines[0]?.id || "",
+  targetGuidelineId: "",
   selectedThemeId: "theme-a",
   storyAnswer:
     "During our bioinformatics club project, I noticed that a clean dataset changed the quality of every conclusion. I rebuilt the spreadsheet, checked missing labels, and learned that scientific confidence depends on disciplined preparation before analysis.",

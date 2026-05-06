@@ -1,5 +1,4 @@
 import type { DocumentRequirement, GuidelineSource, UniversityGuideline } from "@/lib/admission-types";
-import { universityGuidelines } from "@/lib/mock-data";
 
 export type GuidelineIngestionStatus =
   | "queued"
@@ -34,7 +33,7 @@ export const guidelineRequiredSections = [
 ];
 
 export function createGuidelineIngestionJobs(
-  guidelines: UniversityGuideline[] = universityGuidelines
+  guidelines: UniversityGuideline[] = []
 ): GuidelineIngestionJob[] {
   return guidelines.map((guideline) => {
     const hasPdf = Boolean(guideline.source.pdfUrl);

@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { ExternalLink, FileSearch } from "lucide-react";
 import type { Locale, StudentProfile, EvaluationResult, UniversityGuideline } from "@/lib/admission-types";
-import { universityGuidelines } from "@/lib/mock-data";
 
 const sourceLabel: Record<string, { en: string; ko: string }> = {
   "official-imported":   { en: "PDF Registered", ko: "공식 PDF 등록" },
@@ -54,7 +53,7 @@ export function UniversitySelector({ locale, profile, evaluation, guideline, tar
       .catch(console.error);
   }, []);
 
-  const allGuidelines = dbGuidelines.length > 0 ? dbGuidelines : universityGuidelines;
+  const allGuidelines = dbGuidelines;
   const t = copy[locale];
   const src = guideline.source || { status: "needs-official-pdf", notes: "No source data" };
   const srcStatus = (src.status || "needs-official-pdf") as keyof typeof sourceLabel;
