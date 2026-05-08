@@ -1,5 +1,5 @@
 import { openai } from "@/lib/openai";
-import { PDFParse } from "pdf-parse";
+import pdfParse from "pdf-parse";
 import mammoth from "mammoth";
 
 export class DocumentParserService {
@@ -11,8 +11,7 @@ export class DocumentParserService {
     let extractedText = "";
 
     if (mimeType === "application/pdf") {
-      const parser = new PDFParse({ data: buffer });
-      const data = await parser.getText();
+      const data = await pdfParse(buffer);
       extractedText = data.text;
     } else if (
       mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || 

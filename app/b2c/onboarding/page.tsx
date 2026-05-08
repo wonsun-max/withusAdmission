@@ -124,7 +124,7 @@ export default function OnboardingPage() {
               transition: "opacity 0.2s"
             }}
           >
-            {loading ? <Loader2 className="animate-spin" size={18} /> : "Continue to Workspace"}
+            {loading ? <Loader2 className="spin" size={18} /> : "Continue to Workspace"}
           </button>
         </form>
       </motion.div>
