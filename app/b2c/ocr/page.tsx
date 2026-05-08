@@ -40,12 +40,11 @@ export default function OcrPage() {
       id: state.studentId || "pending",
       name: "Student",
       track: state.track || guideline.track || "SPECIAL_12YR",
-      targetMajor: guideline.major || "",
       dateOfBirth: "",
       countryContext: "",
       parentConsent: { status: "not-required", requiredBecause: { en: "", ko: "" } },
       accountLinks: [],
-      gpaData: [],
+      gpaData: state.evaluationData?.subjects || [],
       standardizedTests: [],
       extracurriculars: [],
       approvedFacts: []
@@ -80,12 +79,29 @@ export default function OcrPage() {
             locale={locale}
             profile={profile}
             approved={approved}
-            onApprove={(data) => {
-              // 실제 API에서 studentId와 함께 리턴된 정보를 저장
-              update({ 
-                approved: true,
-                studentId: data?.studentId || "test-student-id" 
-              });
+            onApprove={async (data) => {
+              if (!data?.documentId) return;
+              
+              try {
+                const res = await fetch("/api/ocr/approve", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ documentId: data.documentId }),
+                });
+
+                if (res.ok) {
+                  update({ 
+                    approved: true,
+                    studentId: data.studentId || state.studentId
+                  });
+                } else {
+                  const err = await res.json();
+                  alert(err.error || "Approval failed");
+                }
+              } catch (err) {
+                console.error("Approval error:", err);
+                alert("Failed to approve document");
+              }
             }}
           />
           <div className="grid">

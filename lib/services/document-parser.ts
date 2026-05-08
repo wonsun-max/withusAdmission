@@ -40,6 +40,7 @@ export class DocumentParserService {
         content: `당신은 최고 수준의 글로벌 입시 전문 서류 분석 AI입니다. 
 학생이 업로드한 문서(Word, PDF, 이미지 등)를 읽고, 입시에 필요한 핵심 데이터를 식별하여 정형화된 JSON 포맷으로 추출하십시오.
 추출해야 할 주요 정보: 요약(summary), 평점/성적(gpa), 과목별 성적(subjects), 비교과 활동(extracurriculars), 수상내역(awards).
+각 데이터 포인트(특히 성적과 과목명)에 대해 AI의 확신도를 0.0에서 1.0 사이의 'confidence' 필드로 포함하십시오.
 반드시 JSON 객체 형태로 응답하세요.`,
       }
     ];

@@ -73,7 +73,7 @@ export function OcrPanel({ locale, profile, approved, onApprove }: Props) {
     }
   };
 
-  const displayData = ocrResult?.ocrData?.elements?.[0]?.table?.rows || profile.gpaData;
+  const displayData = ocrResult?.ocrData?.subjects || profile.gpaData;
 
   return (
     <div className={`panel pad ${approved ? "accent-glow" : ""}`}>
@@ -109,9 +109,9 @@ export function OcrPanel({ locale, profile, approved, onApprove }: Props) {
             <span>{t.confidence}</span>
           </div>
           {displayData.map((rec: any, idx: number) => {
-            const subject = rec.subject || rec.cells?.[0]?.content || "Unknown";
-            const score = rec.score || rec.cells?.[1]?.content || "-";
-            const confidence = rec.confidence ?? (rec.cells?.[1]?.confidence || 0.99);
+            const subject = rec.name || rec.subject || "Unknown";
+            const score = rec.score || rec.grade || "-";
+            const confidence = rec.confidence || 0.99;
             
             return (
               <div key={idx} className="table-row highlight">

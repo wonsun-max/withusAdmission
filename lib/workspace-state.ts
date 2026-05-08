@@ -75,11 +75,13 @@ export function useWorkspaceState() {
       if (!res.ok) throw new Error("Failed to sync profile");
       const data = await res.json();
       
+      const approvedDoc = data.documents?.find((d: any) => d.isApproved);
+      
       const patch: Partial<WorkspaceState> = {
         studentId: data.userId,
         track: data.track,
-        approved: data.documents?.some((d: any) => d.isApproved) || false,
-        // Map other fields as necessary
+        approved: !!approvedDoc,
+        evaluationData: approvedDoc?.ocrData ? { subjects: approvedDoc.ocrData.subjects } : null,
       };
       
       update(patch);
