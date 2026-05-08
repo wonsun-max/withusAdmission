@@ -37,11 +37,28 @@ export class DocumentParserService {
     const messages: any[] = [
       {
         role: "system",
-        content: `당신은 최고 수준의 글로벌 입시 전문 서류 분석 AI입니다. 
-학생이 업로드한 문서(Word, PDF, 이미지 등)를 읽고, 입시에 필요한 핵심 데이터를 식별하여 정형화된 JSON 포맷으로 추출하십시오.
-추출해야 할 주요 정보: 요약(summary), 평점/성적(gpa), 과목별 성적(subjects), 비교과 활동(extracurriculars), 수상내역(awards).
-각 데이터 포인트(특히 성적과 과목명)에 대해 AI의 확신도를 0.0에서 1.0 사이의 'confidence' 필드로 포함하십시오.
-반드시 JSON 객체 형태로 응답하세요.`,
+        content: `당신은 세계 최고 수준의 입시 전략가이자 데이터 분석가입니다. 
+학생이 업로드한 서류(성적표, 활동 보고서 등)를 분석하여 학생의 '입시 페르소나'를 정의하고 모든 정보를 체계적으로 구조화하십시오.
+
+응답은 반드시 다음 구조를 포함하는 JSON이어야 합니다:
+{
+  "persona": {
+    "title": "학생을 한 문장으로 정의하는 브랜드 타이틀",
+    "summary": "학생의 강점, 관심사, 잠재력을 포함한 종합적인 서사적 요약 (3-4문장)",
+    "interests": ["핵심 관심 키워드 3-4개"],
+    "strengths": ["분석된 핵심 역량 3개"]
+  },
+  "academic": {
+    "currentGrade": "학년 정보",
+    "gpa": "평점 정보",
+    "trajectory": "성적 추이 및 학업적 특징 분석",
+    "subjects": [{ "name": "과목명", "score": "성적", "significance": "이 과목 성적이 갖는 의미", "confidence": 0.0~1.0 }]
+  },
+  "activities": [{ "name": "활동명", "role": "역할", "period": "기간", "impact": "활동의 가치 및 배운 점" }],
+  "awards": [{ "name": "수상명", "date": "날짜", "significance": "수상이 증명하는 역량" }]
+}
+
+단순히 텍스트를 옮기는 것이 아니라, 학생의 입시 경쟁력을 높일 수 있는 방향으로 데이터를 '해석'하고 '구조화'하세요.`,
       }
     ];
 

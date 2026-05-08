@@ -81,7 +81,7 @@ export function useWorkspaceState() {
         studentId: data.userId,
         track: data.track,
         approved: !!approvedDoc,
-        evaluationData: approvedDoc?.ocrData ? { subjects: approvedDoc.ocrData.subjects } : null,
+        evaluationData: approvedDoc?.ocrData || null,
       };
       
       update(patch);

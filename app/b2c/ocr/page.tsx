@@ -79,6 +79,7 @@ export default function OcrPage() {
             locale={locale}
             profile={profile}
             approved={approved}
+            initialData={state.evaluationData}
             onApprove={async (data) => {
               if (!data?.documentId) return;
               
