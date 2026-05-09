@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { AppNav } from "@/components/app-nav";
 import { UniversitySelector } from "@/components/workspace/university-selector";
 import { useWorkspaceState } from "@/lib/workspace-state";
@@ -17,6 +17,32 @@ export default function UniversitiesPage() {
       .then((data) => setGuidelines(data))
       .catch((err) => console.error("Failed to fetch guidelines", err));
   }, []);
+
+  const profile = useMemo(
+    () => ({
+      id: state.studentId || "pending",
+      name: "Student",
+      track: state.track || "SPECIAL_12YR",
+      dateOfBirth: "",
+      targetMajor: "",
+      countryContext: "",
+      parentConsent: { status: "not-required", requiredBecause: { en: "", ko: "" } },
+      accountLinks: [],
+      gpaData: state.evaluationData?.subjects || [],
+      standardizedTests: [],
+      extracurriculars: [],
+      approvedFacts: []
+    } as any),
+    [state]
+  );
+
+  const evaluation = useMemo(() => ({ 
+    mode: "general", 
+    strengths: [], 
+    weaknesses: [], 
+    overallSummary: "",
+    themes: []
+  } as any), []);
 
   const guideline = guidelines.find((g) => g.id === targetGuidelineId) || guidelines[0] || {
     id: "",
@@ -54,8 +80,8 @@ export default function UniversitiesPage() {
         <div className="grid" style={{ maxWidth: 980 }}>
           <UniversitySelector
             locale={locale}
-            profile={{ track: state.track }}
-            evaluation={{}}
+            profile={profile}
+            evaluation={evaluation}
             guideline={guideline}
             targetGuidelineId={targetGuidelineId}
             onSelectGuideline={(id) => update({ targetGuidelineId: id })}
