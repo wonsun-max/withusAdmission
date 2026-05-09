@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
-import { ArrowRight, ChevronRight, Zap, Globe, Shield, Sparkles } from "lucide-react";
+import { ArrowRight, FileCheck, Globe, Shield, Sparkles } from "lucide-react";
 
 function AuthHandler() {
   const router = useRouter();
@@ -28,46 +27,31 @@ export default function LandingPage() {
       <Suspense fallback={null}>
         <AuthHandler />
       </Suspense>
-      <div className="mesh-bg" />
-      <div className="mesh-bg" />
-      
-      <main className="container" style={{ paddingTop: 160 }}>
-        {/* ── HERO SECTION ── */}
-        <section className="hero-section" style={{ paddingBottom: 120 }}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            <div className="badge">
-              <Sparkles size={12} style={{ marginRight: 6, verticalAlign: "middle" }} />
-              2026 Admissions Season Live
-            </div>
-            <h1 className="gradient-text" style={{ fontSize: "clamp(48px, 10vw, 96px)", marginBottom: 24 }}>
-              Precision-Engineered<br />for Global Academic Success.
+
+      <main>
+        <section className="product-tile light">
+          <div className="tile-inner">
+            <span className="tile-kicker">2026 Admissions Season</span>
+            <h1>
+              WithUs Admission
             </h1>
-            <p style={{ marginTop: 24, fontSize: 20, maxWidth: 720, marginInline: "auto", color: "var(--text-muted)", lineHeight: 1.6 }}>
-              The most advanced AI pipeline for Korean special admissions. <br />
-              Eliminating hallucinations, verifying facts, and building winning narratives.
+            <p className="tile-tagline">
+              Korean overseas special admission, built around approved facts.
             </p>
-            
-            <div style={{ marginTop: 56, display: "flex", gap: 20, justifyContent: "center" }}>
-              <Link href="/login" className="button-modern button-primary" style={{ padding: "20px 40px", fontSize: 16 }}>
-                Get Started Now
+            <div className="tile-actions">
+              <Link href="/login" className="button-modern button-primary">
+                시작하기
                 <ArrowRight size={18} />
               </Link>
-              <Link href="/login" className="button-modern button-secondary" style={{ padding: "20px 40px", fontSize: 16 }}>
-                View Demo
+              <Link href="/login" className="button-modern button-secondary">
+                데모 보기
               </Link>
             </div>
-          </motion.div>
+            <img className="product-render" src="/img/logo.png" alt="WithUs Admission" />
+          </div>
         </section>
 
-        {/* ── TRUST SECTION ── */}
-        <section style={{ 
-          padding: "48px 0", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)",
-          textAlign: "center", display: "flex", justifyContent: "center", gap: 64, opacity: 0.5, fontSize: 14, fontWeight: 700, letterSpacing: "0.2em"
-        }}>
+        <section className="trust-strip">
           <span>SNU</span>
           <span>YONSEI</span>
           <span>KOREA</span>
@@ -76,83 +60,74 @@ export default function LandingPage() {
           <span>EWHA</span>
         </section>
 
-        {/* ── HOW IT WORKS ── */}
-        <section style={{ padding: "160px 0" }}>
-          <div style={{ textAlign: "center", marginBottom: 80 }}>
-            <h2 style={{ fontSize: 42, fontWeight: 800, marginBottom: 16 }}>The Pipeline</h2>
-            <p style={{ color: "var(--text-muted)", fontSize: 18 }}>From raw transcripts to finalized submissions in 5 steps.</p>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 32 }}>
-            {[
-              { step: "01", title: "OCR Review", desc: "Upload PDFs. Our Upstage AI extracts every grade and achievement with 99.9% accuracy." },
-              { step: "02", title: "Branch Evaluation", desc: "Algorithm-driven SWOT analysis tailored for Medical or STEM/Humanities tracks." },
-              { step: "03", title: "Story Builder", desc: "Select from curated themes. Answer deep-dive questions to generate unique evidence." },
-              { step: "04", title: "Master Draft", desc: "AI generates a bilingual master essay that flows naturally and remains fact-checked." },
-              { step: "05", title: "Tailoring", desc: "Final adjustment for specific university prompts with real-time fact warning resolution." }
-            ].map((s, i) => (
-              <div key={i} style={{ padding: 32, background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)", borderRadius: 20 }}>
-                <div style={{ fontSize: 48, fontWeight: 900, color: "rgba(255,255,255,0.05)", marginBottom: -20 }}>{s.step}</div>
-                <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12 }}>{s.title}</h3>
-                <p style={{ fontSize: 15, color: "var(--text-muted)", lineHeight: 1.6 }}>{s.desc}</p>
-              </div>
-            ))}
+        <section className="product-tile dark">
+          <div className="tile-inner">
+            <span className="tile-kicker">Human-approved OCR</span>
+            <h2>Documents become verified profile facts.</h2>
+            <p className="tile-tagline">
+              OCR output is reviewed before it can power evaluation, story building, or essay generation.
+            </p>
+            <div className="tile-actions">
+              <Link href="/login" className="button-modern button-primary">
+                서류 검토 시작
+              </Link>
+              <Link href="/privacy" className="button-modern button-secondary">
+                개인정보 원칙
+              </Link>
+            </div>
           </div>
         </section>
 
-        {/* ── FEATURES ── */}
-        <div className="feature-grid" style={{ marginBottom: 160 }}>
+        <section className="feature-grid" aria-label="Core workflow">
           {[
             {
-              icon: Zap,
-              title: "Proprietary AI Pipeline",
-              desc: "Not just a wrapper. We use a multi-stage orchestration that separates facts from creative narrative."
+              icon: FileCheck,
+              title: "OCR Review",
+              desc: "Upload transcripts and activity proof. Low-confidence records stay out of essays until a human approves them.",
             },
             {
               icon: Shield,
-              title: "Zero Hallucination",
-              desc: "Our engine is blocked from generating unsupported claims. Everything is cross-referenced with your OCR data."
+              title: "Fact-Grounded Essays",
+              desc: "Drafts are generated from approved facts and bounded student answers. Unsupported claims block final submission.",
             },
             {
               icon: Globe,
-              title: "Global Compliance",
-              desc: "Supports 12-year and 3-year overseas special admission tracks for Korea's top 13 universities."
-            }
-          ].map((f, i) => (
-            <motion.div 
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="feature-card"
-              style={{ padding: 48 }}
-            >
-              <f.icon size={32} color="var(--brand)" style={{ marginBottom: 32 }} />
-              <h3 style={{ fontSize: 24, marginBottom: 16 }}>{f.title}</h3>
-              <p style={{ fontSize: 16, color: "var(--text-muted)" }}>{f.desc}</p>
-            </motion.div>
-          ))}
-        </div>
+              title: "3-Year and 12-Year Tracks",
+              desc: "The workspace supports Korean overseas special admission rules, target schools, and medical branch evaluation.",
+            },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <article className="feature-card" key={item.title}>
+                <div>
+                  <Icon size={28} color="var(--brand)" style={{ marginBottom: 24 }} />
+                  <h3>{item.title}</h3>
+                  <p>{item.desc}</p>
+                </div>
+                <Link href="/login" className="text-link">
+                  Learn more
+                </Link>
+              </article>
+            );
+          })}
+        </section>
 
-        {/* ── CTA ── */}
-        <section style={{ paddingBottom: 160, textAlign: "center" }}>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            style={{ 
-              padding: "100px 40px", background: "radial-gradient(circle at center, #111, #000)", 
-              border: "1px solid var(--border)", borderRadius: 32, position: "relative", overflow: "hidden"
-            }}
-          >
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent, var(--brand), transparent)" }} />
-            <h2 style={{ fontSize: 48, fontWeight: 800, marginBottom: 32 }}>Ready to secure your future?</h2>
-            <Link href="/login" className="button-modern button-primary" style={{ padding: "20px 64px", fontSize: 18 }}>
-              Enter Workspace
-              <ChevronRight size={20} style={{ marginLeft: 8 }} />
-            </Link>
-          </motion.div>
+        <section className="product-tile parchment">
+          <div className="tile-inner">
+            <span className="tile-kicker">
+              <Sparkles size={14} style={{ display: "inline", verticalAlign: "-2px", marginRight: 6 }} />
+              Target universities
+            </span>
+            <h2>SKY, 서성한, 중경외시, Ewha, KAIST, POSTECH.</h2>
+            <p className="tile-tagline">
+              Pick schools separately from your profile. Requirements and essays should follow the selected target, not a fixed step wizard.
+            </p>
+            <div className="tile-actions">
+              <Link href="/login" className="button-modern button-primary">
+                워크스페이스 열기
+              </Link>
+            </div>
+          </div>
         </section>
       </main>
     </div>

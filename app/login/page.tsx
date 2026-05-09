@@ -1,7 +1,6 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/client";
-import { LogIn } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -73,11 +72,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="app-shell" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent), radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.05), transparent)" }}>
-      <div className="panel pad" style={{ maxWidth: 400, width: "90%", textAlign: "center", padding: "48px 32px" }}>
-        <img src="/img/logo.png" alt="WithUs Admission" style={{ width: "100%", marginBottom: 32, borderRadius: 12 }} />
-        <p className="lead" style={{ fontSize: 15, color: "var(--text-muted)", marginBottom: 32 }}>
-          세상에서 가장 똑똑한 입시 컨설턴트,<br />WithUs Admission에 로그인하세요.
+    <div className="app-shell" style={{ alignItems: "center", justifyContent: "center", padding: "80px 24px" }}>
+      <div className="panel pad" style={{ maxWidth: 420, width: "100%", textAlign: "center" }}>
+        <img
+          src="/img/logo.png"
+          alt="WithUs Admission"
+          style={{ width: 92, height: 92, margin: "0 auto 32px", borderRadius: 18, filter: "drop-shadow(var(--shadow-product))" }}
+        />
+        <h1 style={{ fontSize: 40, marginBottom: 12 }}>WithUs Admission</h1>
+        <p className="lead" style={{ fontSize: 17, lineHeight: 1.47, margin: "0 auto 32px" }}>
+          승인된 사실만으로 입시 서류와 자소서를 만드는 워크스페이스입니다.
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -85,22 +89,12 @@ export default function LoginPage() {
             type="button"
             onClick={handleGoogleLogin} 
             disabled={loading}
-            className="button-modern button-primary" 
+            className="button"
             style={{ 
               width: "100%", 
-              height: 52, 
-              fontSize: 15, 
-              display: "flex", 
-              alignItems: "center", 
-              justifyContent: "center", 
-              gap: 12,
-              background: "#fff",
-              color: "#111",
-              border: "1px solid #e2e8f0",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-              fontWeight: 600,
-              cursor: loading ? "not-allowed" : "pointer",
-              borderRadius: 12
+              minHeight: 44,
+              color: "var(--colors-ink)",
+              borderColor: "var(--colors-hairline)"
             }}
           >
             <img src="https://www.google.com/favicon.ico" alt="Google" style={{ width: 18, height: 18 }} />
@@ -111,32 +105,20 @@ export default function LoginPage() {
             type="button"
             onClick={handleKakaoLogin} 
             disabled={loading}
-            className="button-modern"
+            className="button primary"
             style={{ 
               width: "100%", 
-              height: 52, 
-              fontSize: 15, 
-              display: "flex", 
-              alignItems: "center", 
-              justifyContent: "center", 
-              gap: 12,
-              background: "#FEE500",
-              color: "#191919",
-              border: "none",
-              borderRadius: 12,
-              boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-              fontWeight: 600,
-              cursor: loading ? "not-allowed" : "pointer"
+              minHeight: 44
             }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 3C6.477 3 2 6.48 2 10.791C2 13.539 3.738 15.954 6.353 17.388L5.249 21.432C5.19 21.651 5.437 21.821 5.617 21.691L10.384 18.256C10.908 18.328 11.448 18.366 12 18.366C17.523 18.366 22 14.886 22 10.575C22 6.264 17.523 3.195 12 3Z" fill="#191919"/>
+              <path d="M12 3C6.477 3 2 6.48 2 10.791C2 13.539 3.738 15.954 6.353 17.388L5.249 21.432C5.19 21.651 5.437 21.821 5.617 21.691L10.384 18.256C10.908 18.328 11.448 18.366 12 18.366C17.523 18.366 22 14.886 22 10.575C22 6.264 17.523 3.195 12 3Z" fill="currentColor"/>
             </svg>
             카카오로 계속하기
           </button>
         </div>
 
-        <p style={{ marginTop: 24, fontSize: 13, color: "var(--text-muted)" }}>
+        <p style={{ marginTop: 24, fontSize: 12, lineHeight: 1.5 }}>
           로그인 시 <Link href="/terms" style={{ textDecoration: "underline", color: "inherit" }}>서비스 약관</Link> 및 <Link href="/privacy" style={{ textDecoration: "underline", color: "inherit" }}>개인정보 처리방침</Link>에 동의하게 됩니다.
         </p>
       </div>

@@ -9,7 +9,7 @@ import { useWorkspaceState } from "@/lib/workspace-state";
 const STEPS = [
   {
     step: "01", href: "/b2c/ocr",
-    icon: FileSearch, color: "#3b82f6",
+    icon: FileSearch, color: "#0066cc",
     titleKo: "OCR 서류 검토", titleEn: "OCR Document Review",
     descKo: "성적표 PDF를 업로드하고 AI가 추출한 데이터를 승인합니다.",
     descEn: "Upload transcript PDFs and approve AI-extracted data.",
@@ -17,7 +17,7 @@ const STEPS = [
   },
   {
     step: "02", href: "/b2c/evaluation",
-    icon: FlaskConical, color: "#8b5cf6",
+    icon: FlaskConical, color: "#0066cc",
     titleKo: "스펙 평가", titleEn: "Profile Evaluation",
     descKo: "의대/일반 브랜치로 분기해 강점과 약점을 분석합니다.",
     descEn: "Medical/general branch analysis: 2 strengths, 1 critical weakness.",
@@ -25,7 +25,7 @@ const STEPS = [
   },
   {
     step: "03", href: "/b2c/story",
-    icon: Sparkles, color: "#10b981",
+    icon: Sparkles, color: "#0066cc",
     titleKo: "스토리 빌더", titleEn: "Story Builder",
     descKo: "A/B/C 스토리 테마 중 하나를 선택하고 근거 질문에 답합니다.",
     descEn: "Pick a story theme and answer the targeted follow-up question.",
@@ -33,7 +33,7 @@ const STEPS = [
   },
   {
     step: "04", href: "/b2c/draft",
-    icon: PenLine, color: "#f59e0b",
+    icon: PenLine, color: "#0066cc",
     titleKo: "마스터 자소서", titleEn: "Master Essay Draft",
     descKo: "한/영 마스터 자소서 초안을 확인하고 수정합니다.",
     descEn: "Review and refine your bilingual master essay draft.",
@@ -41,7 +41,7 @@ const STEPS = [
   },
   {
     step: "05", href: "/b2c/tailoring",
-    icon: ShieldCheck, color: "#ef4444",
+    icon: ShieldCheck, color: "#0066cc",
     titleKo: "대학별 변환 + 팩트체크", titleEn: "University Tailoring & Fact-Check",
     descKo: "목표 대학 문항에 맞게 재작성하고 팩트 경고를 해소합니다.",
     descEn: "Reshape for each university's prompt and clear all fact warnings.",
