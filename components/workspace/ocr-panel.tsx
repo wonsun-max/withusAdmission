@@ -56,10 +56,10 @@ const copy = {
   },
 } as const;
 
-export function OcrPanel({ locale, profile, approved, onApprove }: Props) {
+export function OcrPanel({ locale, profile, approved, initialData, onApprove }: Props) {
   const t = copy[locale];
   const [isUploading, setIsUploading] = useState(false);
-  const [ocrResult, setOcrResult] = useState<any>(null);
+  const [ocrResult, setOcrResult] = useState<any>(initialData ? { ocrData: initialData } : null);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -78,6 +78,8 @@ export function OcrPanel({ locale, profile, approved, onApprove }: Props) {
       const data = await res.json();
       if (data.success) {
         setOcrResult(data);
+        // Automatically update workspace state with the new data
+        onApprove({ ...data, preventRedirect: true }); 
       } else {
         alert(data.error || "Analysis Failed");
       }
@@ -92,7 +94,7 @@ export function OcrPanel({ locale, profile, approved, onApprove }: Props) {
   const data = ocrResult?.ocrData;
   const persona = data?.persona;
   const academic = data?.academic;
-  const subjects = academic?.subjects || profile.gpaData;
+  const subjects = academic?.subjects || data?.subjects || profile.gpaData || [];
   const activities = data?.activities || [];
   const awards = data?.awards || [];
 
@@ -176,17 +178,28 @@ export function OcrPanel({ locale, profile, approved, onApprove }: Props) {
         </div>
       )}
 
-      <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-        <label className="button" style={{ flex: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 48 }}>
-          <input type="file" hidden onChange={handleFileUpload} disabled={isUploading} />
-          {isUploading ? <Loader2 className="spin" size={16} /> : <Upload size={16} />}
-          {isUploading ? t.processing : t.upload}
-        </label>
-        {!approved && data && (
-          <button className="button success" style={{ flex: 1.5, minHeight: 48 }} onClick={() => onApprove(ocrResult)}>
-            <Sparkles size={16} />
-            {t.approve}
-          </button>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 12 }}>
+        <div style={{ display: "flex", gap: 8 }}>
+          <label className="button" style={{ flex: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 48 }}>
+            <input type="file" hidden onChange={handleFileUpload} disabled={isUploading} />
+            {isUploading ? <Loader2 className="spin" size={16} /> : <Upload size={16} />}
+            <span style={{ marginLeft: 8 }}>{isUploading ? t.processing : t.upload}</span>
+          </label>
+          
+          {!approved && data && (
+            <button className="button primary" style={{ flex: 1.5, minHeight: 48 }} onClick={() => onApprove(ocrResult)}>
+              <CheckCircle2 size={16} />
+              <span style={{ marginLeft: 8 }}>{t.approve}</span>
+            </button>
+          )}
+        </div>
+        
+        {data && !approved && (
+          <p style={{ fontSize: 12, color: "var(--colors-primary)", textAlign: "center", fontWeight: 500 }}>
+            {locale === "ko" 
+              ? "✓ 데이터가 서버에 안전하게 저장되었습니다. 검토 후 승인 버튼을 눌러주세요." 
+              : "✓ Data safely saved to server. Please review and click Approve."}
+          </p>
         )}
       </div>
     </div>

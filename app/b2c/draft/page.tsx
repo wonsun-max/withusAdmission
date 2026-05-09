@@ -10,18 +10,19 @@ import { ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 
 export default function DraftPage() {
   const { state, ready } = useWorkspaceState();
-  const { locale, approved, targetGuidelineId, storyAnswer, studentId } = state;
+  const { locale, approved, targetGuidelineIds, storyAnswer, studentId } = state;
+  const primaryTargetId = targetGuidelineIds?.[0] || "";
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [essays, setEssays] = useState<{ masterKo: string; masterEn: string } | null>(null);
 
   useEffect(() => {
-    if (ready && approved && storyAnswer && targetGuidelineId && !essays && !isGenerating) {
+    if (ready && approved && storyAnswer && primaryTargetId && !essays && !isGenerating) {
       const fetchDraft = async () => {
         setIsGenerating(true);
         try {
           const sid = studentId || "test-student-id"; 
-          const result = await createMasterEssayAPI(sid, targetGuidelineId, { q1: storyAnswer });
+          const result = await createMasterEssayAPI(sid, primaryTargetId, { q1: storyAnswer });
           setEssays({
             masterKo: result.content.masterKo,
             masterEn: result.content.masterEn,
@@ -34,7 +35,7 @@ export default function DraftPage() {
       };
       fetchDraft();
     }
-  }, [ready, approved, storyAnswer, targetGuidelineId, essays, isGenerating, studentId]);
+  }, [ready, approved, storyAnswer, primaryTargetId, essays, isGenerating, studentId]);
 
   if (!ready) return null;
 

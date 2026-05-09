@@ -9,7 +9,7 @@ import type { AdmissionTrack } from "./admission-types";
 
 export type WorkspaceState = {
   approved: boolean;
-  targetGuidelineId: string;
+  targetGuidelineIds: string[];
   selectedThemeId: string;
   storyAnswer: string;
   locale: "ko" | "en";
@@ -21,7 +21,7 @@ export type WorkspaceState = {
 
 const DEFAULTS: WorkspaceState = {
   approved: false,
-  targetGuidelineId: "",
+  targetGuidelineIds: [],
   selectedThemeId: "",
   storyAnswer: "",
   locale: "ko",
@@ -51,7 +51,7 @@ export function useWorkspaceState() {
         evaluationData: data.evaluationResult || approvedDoc?.ocrData || null,
         selectedThemeId: data.selectedThemeId || "",
         storyAnswer: data.storyAnswer || "",
-        targetGuidelineId: data.targetGuidelineId || "",
+        targetGuidelineIds: data.targetGuidelineIds || [],
         locale: data.locale || "ko",
       };
       

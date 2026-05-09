@@ -8,15 +8,7 @@ import { Target } from "lucide-react";
 
 export default function UniversitiesPage() {
   const { state, update, ready } = useWorkspaceState();
-  const { locale, targetGuidelineId } = state;
-  const [guidelines, setGuidelines] = useState<any[]>([]);
-
-  useEffect(() => {
-    fetch("/api/guidelines")
-      .then((res) => res.json())
-      .then((data) => setGuidelines(data))
-      .catch((err) => console.error("Failed to fetch guidelines", err));
-  }, []);
+  const { locale } = state;
 
   const profile = useMemo(
     () => ({
@@ -43,16 +35,6 @@ export default function UniversitiesPage() {
     overallSummary: "",
     themes: []
   } as any), []);
-
-  const guideline = guidelines.find((g) => g.id === targetGuidelineId) || guidelines[0] || {
-    id: "",
-    university: "Pending Selection",
-    universityKo: "선택 대기 중",
-    major: "Major",
-    track: "SPECIAL_12YR",
-    documentRequirements: [],
-    source: { status: "needs-official-pdf" }
-  };
 
   if (!ready) return null;
 
@@ -82,9 +64,8 @@ export default function UniversitiesPage() {
             locale={locale}
             profile={profile}
             evaluation={evaluation}
-            guideline={guideline}
-            targetGuidelineId={targetGuidelineId}
-            onSelectGuideline={(id) => update({ targetGuidelineId: id })}
+            targetGuidelineIds={state.targetGuidelineIds}
+            onUpdateGuidelines={(ids) => update({ targetGuidelineIds: ids })}
           />
         </div>
       </main>

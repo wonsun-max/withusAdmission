@@ -1,48 +1,38 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { ExternalLink, FileSearch } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { ExternalLink, Search, CheckCircle2, Circle } from "lucide-react";
 import type { Locale, StudentProfile, EvaluationResult, UniversityGuideline } from "@/lib/admission-types";
-
-const sourceLabel: Record<string, { en: string; ko: string }> = {
-  "official-imported":   { en: "PDF Registered", ko: "공식 PDF 등록" },
-  "official-page-found": { en: "Page Confirmed", ko: "공식 페이지 확인" },
-  "needs-official-pdf":  { en: "PDF Needed",     ko: "PDF 확인 필요" },
-};
-
-const trackLabel: Record<string, { en: string; ko: string }> = {
-  SPECIAL_12YR: { en: "12-Year Track (12특)", ko: "12년 특례 (12특)" },
-  SPECIAL_3YR:  { en: "3-Year Track (3특)",   ko: "3년 특례 (3특)" },
-};
 
 type Props = {
   locale: Locale;
   profile: StudentProfile;
   evaluation: EvaluationResult;
-  guideline: UniversityGuideline;
-  targetGuidelineId: string;
-  onSelectGuideline: (id: string) => void;
+  targetGuidelineIds: string[];
+  onUpdateGuidelines: (ids: string[]) => void;
 };
 
 const copy = {
   en: {
-    title: "Target University & Track",
-    subtitle: "Drives track logic, essay prompts, and evaluation mode.",
-    uniMajor: "University & Major",
-    year: "Application Year",
-    source: "Official Source",
+    title: "Target Universities",
+    subtitle: "Select all universities you are planning to apply to.",
+    searchPlaceholder: "Search university or major...",
+    selectedCount: "Selected",
+    noResults: "No universities found.",
   },
   ko: {
-    title: "목표 대학 및 트랙",
-    subtitle: "선택에 따라 3특/12특, 문항, 평가 모드가 자동으로 바뀝니다.",
-    uniMajor: "대학 및 전공",
-    year: "지원 연도",
-    source: "공식 모집요강 소스",
+    title: "목표 대학 선택",
+    subtitle: "지원하고자 하는 모든 대학과 학과를 다중 선택하세요.",
+    searchPlaceholder: "대학명 또는 학과 검색...",
+    selectedCount: "선택됨",
+    noResults: "검색 결과가 없습니다.",
   },
 } as const;
 
-export function UniversitySelector({ locale, profile, evaluation, guideline, targetGuidelineId, onSelectGuideline }: Props) {
-  const [dbGuidelines, setDbGuidelines] = useState<any[]>([]);
+export function UniversitySelector({ locale, profile, targetGuidelineIds = [], onUpdateGuidelines }: Props) {
+  const [dbGuidelines, setDbGuidelines] = useState<UniversityGuideline[]>([]);
+  const [search, setSearch] = useState("");
+  const t = copy[locale];
 
   useEffect(() => {
     fetch("/api/guidelines")
@@ -53,72 +43,87 @@ export function UniversitySelector({ locale, profile, evaluation, guideline, tar
       .catch(console.error);
   }, []);
 
-  const allGuidelines = dbGuidelines;
-  const t = copy[locale];
-  const src = guideline.source || { status: "needs-official-pdf", notes: "No source data" };
-  const srcStatus = (src.status || "needs-official-pdf") as keyof typeof sourceLabel;
+  const filtered = useMemo(() => {
+    return dbGuidelines.filter(g => 
+      g.university.toLowerCase().includes(search.toLowerCase()) ||
+      g.major.toLowerCase().includes(search.toLowerCase()) ||
+      (g.universityKo && g.universityKo.includes(search))
+    );
+  }, [dbGuidelines, search]);
+
+  const toggleGuideline = (id: string) => {
+    const nextIds = targetGuidelineIds.includes(id)
+      ? targetGuidelineIds.filter(i => i !== id)
+      : [...targetGuidelineIds, id];
+    onUpdateGuidelines(nextIds);
+  };
 
   return (
-    <div className="panel pad">
+    <div className="panel pad" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <div className="panel-header">
         <div>
           <h2>{t.title}</h2>
           <p className="panel-label">{t.subtitle}</p>
         </div>
-        <span className="badge brand">2026</span>
+        <span className="badge brand">
+          {targetGuidelineIds.length} {t.selectedCount}
+        </span>
       </div>
 
-      <div className="form-grid">
-        <div className="field">
-          <label htmlFor="target-uni">{t.uniMajor}</label>
-          <select
-            id="target-uni"
-            className="select"
-            value={targetGuidelineId}
-            onChange={(e) => onSelectGuideline(e.target.value)}
-          >
-            {allGuidelines.map((g) => (
-              <option key={g.id} value={g.id}>
-                {locale === "ko" ? (g.universityKo || g.university) : g.university} — {g.major} ({g.track || "SPECIAL_12YR"})
-              </option>
-            ))}
-          </select>
-        </div>
+      <div className="search-box" style={{ position: "relative" }}>
+        <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--colors-ink-muted-48)" }} />
+        <input
+          type="text"
+          className="input"
+          placeholder={t.searchPlaceholder}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ paddingLeft: 40, width: "100%" }}
+        />
+      </div>
 
-        <div className="tag-row" style={{ marginTop: 0 }}>
-          <span className="badge brand">{trackLabel[profile.track][locale]}</span>
-          <span className="badge violet">{guideline.admissionFamily}</span>
-          <span className={`badge ${evaluation.mode === "medical" ? "danger" : "success"}`}>
-            {evaluation.mode === "medical" ? "🏥 의대 모드" : "📚 일반 모드"}
-          </span>
-        </div>
-
-        <div style={{ borderTop: "1px solid var(--border)", paddingTop: 14 }}>
-          <p style={{ fontSize: 11, color: "var(--muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
-            {t.source}
-          </p>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-            <span
-              className={`badge ${
-                srcStatus === "official-imported" ? "success" :
-                srcStatus === "official-page-found" ? "brand" : "warning"
-              }`}
+      <div className="selection-list" style={{ 
+        maxHeight: 400, 
+        overflowY: "auto", 
+        display: "flex", 
+        flexDirection: "column", 
+        gap: 8,
+        padding: "4px"
+      }}>
+        {filtered.length > 0 ? filtered.map((g) => {
+          const isSelected = targetGuidelineIds.includes(g.id);
+          return (
+            <div 
+              key={g.id}
+              onClick={() => toggleGuideline(g.id)}
+              className={`selectable-card ${isSelected ? "selected" : ""}`}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "16px",
+                borderRadius: "var(--rounded-md)",
+                border: isSelected ? "2px solid var(--colors-primary)" : "1px solid var(--colors-surface-pearl)",
+                background: isSelected ? "rgba(0, 102, 204, 0.04)" : "var(--colors-surface-white)",
+                cursor: "pointer",
+                transition: "all 0.2s ease"
+              }}
             >
-              {sourceLabel[srcStatus][locale]}
-            </span>
-            <a
-              className="button"
-              href={src.pdfUrl ?? src.sourcePageUrl}
-              target="_blank"
-              rel="noreferrer"
-              style={{ fontSize: 12, minHeight: 32 }}
-            >
-              <ExternalLink size={13} />
-              {locale === "ko" ? "소스 열기" : "Open source"}
-            </a>
+              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                {isSelected ? <CheckCircle2 size={20} color="var(--colors-primary)" /> : <Circle size={20} color="var(--colors-ink-muted-24)" />}
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 15 }}>{locale === "ko" ? (g.universityKo || g.university) : g.university}</div>
+                  <div style={{ fontSize: 13, color: "var(--colors-ink-muted-64)" }}>{g.major} · {g.track}</div>
+                </div>
+              </div>
+              <div className="badge violet" style={{ fontSize: 10 }}>2026</div>
+            </div>
+          );
+        }) : (
+          <div style={{ textAlign: "center", padding: "40px 0", color: "var(--colors-ink-muted-48)" }}>
+            {t.noResults}
           </div>
-          <p style={{ fontSize: 11, color: "var(--subtle)", marginTop: 8, lineHeight: 1.5 }}>{src.notes}</p>
-        </div>
+        )}
       </div>
     </div>
   );

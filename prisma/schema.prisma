@@ -61,7 +61,7 @@ model StudentProfile {
   // Persistence for work-in-progress state
   selectedThemeId   String?
   storyAnswer       String? @db.Text
-  targetGuidelineId String?
+  targetGuidelineIds String[] 
   evaluationResult  Json?   // AI spec evaluation results (strengths, weaknesses, etc.)
 
   // Relations

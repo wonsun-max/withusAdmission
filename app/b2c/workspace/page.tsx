@@ -41,7 +41,7 @@ const MODULES = [
     titleEn: "Universities",
     descKo: "지망 대학을 선택하고 모집요강을 확인합니다.",
     descEn: "Select target schools and view guidelines.",
-    checkKey: "targetGuidelineId",
+    checkKey: "targetGuidelineIds",
   },
   {
     href: "/b2c/evaluation",
@@ -102,7 +102,9 @@ export default function WorkspaceHubPage() {
         <div className="grid three">
           {MODULES.map((m) => {
             const Icon = m.icon;
-            const isDone = !!(state as any)[m.checkKey];
+            const isDone = Array.isArray((state as any)[m.checkKey]) 
+              ? (state as any)[m.checkKey].length > 0
+              : !!(state as any)[m.checkKey];
 
             return (
               <Link key={m.href} href={m.href} style={{ textDecoration: "none", color: "inherit" }}>

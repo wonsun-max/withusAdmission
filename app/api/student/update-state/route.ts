@@ -20,7 +20,7 @@ export async function PATCH(req: Request) {
     const updatedProfile = await StudentService.updateWorkspaceState(user.id, {
       selectedThemeId: body.selectedThemeId,
       storyAnswer: body.storyAnswer,
-      targetGuidelineId: body.targetGuidelineId,
+      targetGuidelineIds: body.targetGuidelineIds,
       evaluationResult: body.evaluationResult,
       track: body.track,
       status: body.status,

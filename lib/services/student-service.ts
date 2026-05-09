@@ -59,7 +59,7 @@ export class StudentService {
   static async updateWorkspaceState(userId: string, data: {
     selectedThemeId?: string;
     storyAnswer?: string;
-    targetGuidelineId?: string;
+    targetGuidelineIds?: string[];
     evaluationResult?: any;
     track?: AdmissionTrack;
     status?: string;
