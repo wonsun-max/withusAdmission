@@ -15,6 +15,8 @@ import {
   ShieldCheck,
   Sparkles,
   Users,
+  Target,
+  UserCircle,
 } from "lucide-react";
 
 type NavMode = "student" | "consultant";
@@ -24,22 +26,24 @@ type NavItem = {
   icon: React.ElementType;
   labelKo: string;
   labelEn: string;
-  step?: string;
 };
 
-const STUDENT_STEPS: NavItem[] = [
-  { href: "/b2c/workspace",  icon: GraduationCap, labelKo: "워크스페이스 홈",   labelEn: "Workspace Hub" },
-  { href: "/b2c/ocr",        icon: FileSearch,    labelKo: "Step 1 · OCR 검토",  labelEn: "Step 1 · OCR Review",     step: "01" },
-  { href: "/b2c/evaluation", icon: FlaskConical,  labelKo: "Step 2 · 스펙 평가", labelEn: "Step 2 · Evaluation",      step: "02" },
-  { href: "/b2c/story",      icon: Sparkles,      labelKo: "Step 3 · 스토리",    labelEn: "Step 3 · Story Builder",   step: "03" },
-  { href: "/b2c/draft",      icon: PenLine,       labelKo: "Step 4 · 마스터 초안",labelEn: "Step 4 · Master Draft",   step: "04" },
-  { href: "/b2c/tailoring",  icon: ShieldCheck,   labelKo: "Step 5 · 대학별 변환",labelEn: "Step 5 · Tailoring",      step: "05" },
+/** Module-based navigation — fully decoupled and modular. */
+const STUDENT_NAV: NavItem[] = [
+  { href: "/b2c/workspace",   icon: LayoutDashboard, labelKo: "대시보드",     labelEn: "Dashboard" },
+  { href: "/b2c/profile",     icon: UserCircle,      labelKo: "나의 스펙",     labelEn: "My Profile" },
+  { href: "/b2c/ocr",         icon: FileSearch,      labelKo: "서류 검토",     labelEn: "OCR Review" },
+  { href: "/b2c/universities",icon: Target,          labelKo: "목표 대학",     labelEn: "Universities" },
+  { href: "/b2c/evaluation",  icon: FlaskConical,    labelKo: "스펙 분석",     labelEn: "Evaluation" },
+  { href: "/b2c/story",       icon: Sparkles,        labelKo: "스토리",       labelEn: "Story" },
+  { href: "/b2c/draft",       icon: PenLine,         labelKo: "자소서 초안",   labelEn: "Master Draft" },
+  { href: "/b2c/tailoring",   icon: ShieldCheck,     labelKo: "대학별 변환",   labelEn: "Tailoring" },
 ];
 
-const CONSULTANT_ITEMS: NavItem[] = [
-  { href: "/b2b/dashboard", icon: LayoutDashboard, labelKo: "대시보드",        labelEn: "Dashboard" },
-  { href: "/b2b/students",  icon: Users,           labelKo: "학생 CRM",         labelEn: "Student CRM" },
-  { href: "/b2b/export",    icon: Download,        labelKo: "PDF 리포트 출력",  labelEn: "PDF Export" },
+const CONSULTANT_NAV: NavItem[] = [
+  { href: "/b2b/dashboard", icon: LayoutDashboard, labelKo: "대시보드",       labelEn: "Dashboard" },
+  { href: "/b2b/students",  icon: Users,           labelKo: "학생 CRM",      labelEn: "Student CRM" },
+  { href: "/b2b/export",    icon: Download,        labelKo: "PDF 리포트",    labelEn: "PDF Export" },
 ];
 
 type Props = { mode: NavMode; locale?: "ko" | "en" };
@@ -54,12 +58,12 @@ export function AppNav({ mode, locale = "ko" }: Props) {
     router.push("/login");
   };
 
-  const navItems = mode === "student" ? STUDENT_STEPS : CONSULTANT_ITEMS;
+  const navItems = mode === "student" ? STUDENT_NAV : CONSULTANT_NAV;
 
   return (
     <aside className="sidebar">
       <Link href="/" className="app-nav-brand">
-        <img src="/img/logo.png" alt="WithUs Admission" />
+        <img src="/img/logo.png" alt="WithUs" />
         <span>WithUs</span>
       </Link>
 
@@ -79,6 +83,7 @@ export function AppNav({ mode, locale = "ko" }: Props) {
           );
         })}
 
+        {/* Cross-section shortcut */}
         {mode === "student" ? (
           <Link href="/b2b/dashboard" className="nav-link">
             <BarChart3 size={14} />

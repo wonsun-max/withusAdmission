@@ -1,10 +1,10 @@
 /**
- * Workspace state persisted in sessionStorage so each step page can read/write it.
- * All pages share this single source of truth without a global context provider.
+ * Workspace state persisted primarily in the Database.
+ * sessionStorage is used as a local cache for instant UI feedback.
  */
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import type { AdmissionTrack } from "./admission-types";
 
 export type WorkspaceState = {
@@ -22,53 +22,20 @@ export type WorkspaceState = {
 const DEFAULTS: WorkspaceState = {
   approved: false,
   targetGuidelineId: "",
-  selectedThemeId: "theme-a",
-  storyAnswer:
-    "During our bioinformatics club project, I noticed that a clean dataset changed the quality of every conclusion. I rebuilt the spreadsheet, checked missing labels, and learned that scientific confidence depends on disciplined preparation before analysis.",
+  selectedThemeId: "",
+  storyAnswer: "",
   locale: "ko",
   track: "SPECIAL_12YR",
 };
 
 const KEY = "ga_workspace_state";
 
-function read(): WorkspaceState {
-  if (typeof window === "undefined") return DEFAULTS;
-  try {
-    const raw = sessionStorage.getItem(KEY);
-    if (!raw) return DEFAULTS;
-    return { ...DEFAULTS, ...JSON.parse(raw) };
-  } catch {
-    return DEFAULTS;
-  }
-}
-
-function write(state: WorkspaceState) {
-  try {
-    sessionStorage.setItem(KEY, JSON.stringify(state));
-  } catch {
-    // noop
-  }
-}
-
-/** Hook for individual step pages to read and update shared workspace state. */
 export function useWorkspaceState() {
   const [state, setState] = useState<WorkspaceState>(DEFAULTS);
   const [ready, setReady] = useState(false);
+  const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    setState(read());
-    // Auto-sync on mount to prevent old mock data ("empty") from persisting
-    syncWithBackend().then(() => setReady(true));
-  }, []);
-
-  const update = useCallback((patch: Partial<WorkspaceState>) => {
-    setState((prev) => {
-      const next = { ...prev, ...patch };
-      write(next);
-      return next;
-    });
-  }, []);
-
+  // 1. Initial Load: Sync from Database
   const syncWithBackend = useCallback(async () => {
     try {
       const res = await fetch(`/api/student/profile`);
@@ -77,19 +44,59 @@ export function useWorkspaceState() {
       
       const approvedDoc = data.documents?.find((d: any) => d.isApproved);
       
-      const patch: Partial<WorkspaceState> = {
+      const patch: WorkspaceState = {
         studentId: data.userId,
         track: data.track,
         approved: !!approvedDoc,
-        evaluationData: approvedDoc?.ocrData || null,
+        evaluationData: data.evaluationResult || approvedDoc?.ocrData || null,
+        selectedThemeId: data.selectedThemeId || "",
+        storyAnswer: data.storyAnswer || "",
+        targetGuidelineId: data.targetGuidelineId || "",
+        locale: data.locale || "ko",
       };
       
-      update(patch);
+      setState(patch);
+      sessionStorage.setItem(KEY, JSON.stringify(patch));
       return data;
     } catch (err) {
-      console.error("Sync error:", err);
+      console.error("Initial sync error:", err);
     }
-  }, [update]);
+  }, []);
+
+  useEffect(() => {
+    syncWithBackend().then(() => setReady(true));
+  }, [syncWithBackend]);
+
+  // 2. Persist to Database (Debounced)
+  const persistToDb = useCallback(async (patch: Partial<WorkspaceState>) => {
+    try {
+      await fetch("/api/student/update-state", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(patch),
+      });
+    } catch (err) {
+      console.error("Failed to persist state to DB:", err);
+    }
+  }, []);
+
+  // 3. Unified Update Function
+  const update = useCallback((patch: Partial<WorkspaceState>) => {
+    setState((prev) => {
+      const next = { ...prev, ...patch };
+      
+      // Update local cache for instant UI
+      sessionStorage.setItem(KEY, JSON.stringify(next));
+      
+      // Debounced DB sync
+      if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
+      syncTimeoutRef.current = setTimeout(() => {
+        persistToDb(patch);
+      }, 800); // 800ms debounce to avoid spamming the DB during typing
+
+      return next;
+    });
+  }, [persistToDb]);
 
   return { state, update, syncWithBackend, ready };
 }

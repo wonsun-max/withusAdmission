@@ -8,7 +8,7 @@ import { ArrowRight, ArrowLeft } from "lucide-react";
 
 export default function StoryPage() {
   const { state, update, ready } = useWorkspaceState();
-  const { locale, approved, targetGuidelineId, selectedThemeId, storyAnswer, evaluationData } = state;
+  const { locale, approved, selectedThemeId, storyAnswer, evaluationData } = state;
 
   const themes = evaluationData?.themes || [];
 
@@ -18,13 +18,19 @@ export default function StoryPage() {
     return (
       <div className="app-shell">
         <AppNav mode="student" locale={locale} />
-        <main className="main" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "80vh" }}>
-          <h2 style={{ marginBottom: 16 }}>{locale === "ko" ? "이전 단계를 완료해주세요" : "Please complete the previous step"}</h2>
-          <p style={{ color: "var(--muted)", marginBottom: 24 }}>{locale === "ko" ? "OCR 검토 및 승인이 필요합니다." : "OCR review and approval are required."}</p>
-          <Link href="/b2c/ocr" className="button primary">
-            <ArrowLeft size={16} />
-            {locale === "ko" ? "Step 1으로 이동" : "Go to Step 1"}
-          </Link>
+        <main className="main" style={{ display: "grid", placeItems: "center", minHeight: "60vh" }}>
+          <div style={{ textAlign: "center" }}>
+            <h2 style={{ marginBottom: 16 }}>
+              {locale === "ko" ? "서류 검토를 먼저 완료해주세요" : "Please complete document review first"}
+            </h2>
+            <p style={{ marginBottom: 24 }}>
+              {locale === "ko" ? "OCR 검토 및 승인이 필요합니다." : "OCR review and approval are required."}
+            </p>
+            <Link href="/b2c/ocr" className="button primary">
+              <ArrowLeft size={16} />
+              {locale === "ko" ? "서류 검토로 이동" : "Go to Document Review"}
+            </Link>
+          </div>
         </main>
       </div>
     );
@@ -38,11 +44,13 @@ export default function StoryPage() {
       <main className="main">
         <header className="page-header">
           <div>
-            <div className="eyebrow">Step 03 / 05</div>
-            <h1 style={{ marginTop: 6 }}>
-              {locale === "ko" ? "동적 스토리 빌더" : "Interactive Story Builder"}
+            <div className="eyebrow">
+              {locale === "ko" ? "스토리 빌더" : "Story Builder"}
+            </div>
+            <h1 style={{ fontSize: "clamp(28px, 3.4vw, 40px)", marginTop: 6 }}>
+              {locale === "ko" ? "나만의 스토리 설계" : "Build Your Story"}
             </h1>
-            <p className="lead">
+            <p className="lead" style={{ fontSize: 17 }}>
               {locale === "ko"
                 ? "스토리 방향을 선택하고 필요한 근거만 질문에 맞게 짧게 작성하세요."
                 : "Select a story direction and answer the targeted follow-up question with facts."}
@@ -59,19 +67,22 @@ export default function StoryPage() {
           onChangeAnswer={(text) => update({ storyAnswer: text })}
         />
 
-        <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between" }}>
-          <Link href="/b2c/evaluation" className="button" style={{ fontSize: 14, padding: "0 24px", minHeight: 44 }}>
+        <div className="split-actions" style={{ justifyContent: "space-between" }}>
+          <Link href="/b2c/evaluation" className="button">
             <ArrowLeft size={16} />
             {locale === "ko" ? "이전" : "Back"}
           </Link>
-          <Link 
-            href={isComplete ? "/b2c/draft" : "#"} 
-            className={`button primary ${!isComplete ? "disabled" : ""}`} 
-            style={{ fontSize: 14, padding: "0 24px", minHeight: 44, opacity: isComplete ? 1 : 0.5, pointerEvents: isComplete ? "auto" : "none" }}
-          >
-            {locale === "ko" ? "다음: 마스터 초안" : "Next: Master Draft"}
-            <ArrowRight size={16} />
-          </Link>
+          {isComplete ? (
+            <Link href="/b2c/draft" className="button primary">
+              {locale === "ko" ? "다음: 자소서 초안" : "Next: Master Draft"}
+              <ArrowRight size={16} />
+            </Link>
+          ) : (
+            <span className="button" style={{ opacity: 0.4, cursor: "not-allowed" }}>
+              {locale === "ko" ? "다음: 자소서 초안" : "Next: Master Draft"}
+              <ArrowRight size={16} />
+            </span>
+          )}
         </div>
       </main>
     </div>

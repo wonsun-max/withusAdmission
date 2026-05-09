@@ -1,58 +1,26 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { AppNav } from "@/components/app-nav";
 import { OcrPanel } from "@/components/workspace/ocr-panel";
-import { UniversitySelector } from "@/components/workspace/university-selector";
-import { DocumentChecklist } from "@/components/workspace/document-checklist";
-import { AccountLinks } from "@/components/workspace/account-links";
 import { useWorkspaceState } from "@/lib/workspace-state";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, FileSearch } from "lucide-react";
 
 export default function OcrPage() {
   const { state, update, ready } = useWorkspaceState();
-  const { locale, approved, targetGuidelineId } = state;
-  const [guidelines, setGuidelines] = useState<any[]>([]);
-
-  useEffect(() => {
-    fetch("/api/guidelines")
-      .then((res) => res.json())
-      .then((data) => setGuidelines(data))
-      .catch((err) => console.error("Failed to fetch guidelines", err));
-  }, []);
-
-  const guideline = useMemo(
-    () => guidelines.find((g) => g.id === targetGuidelineId) || guidelines[0] || {
-      id: "",
-      university: "Pending Selection",
-      universityKo: "선택 대기 중",
-      major: "Major",
-      track: "SPECIAL_12YR",
-      documentRequirements: [],
-      source: { status: "needs-official-pdf" }
-    },
-    [targetGuidelineId, guidelines]
-  );
+  const { locale, approved } = state;
 
   const profile = useMemo(
     () => ({
       id: state.studentId || "pending",
       name: "Student",
-      track: state.track || guideline.track || "SPECIAL_12YR",
-      dateOfBirth: "",
-      countryContext: "",
-      parentConsent: { status: "not-required", requiredBecause: { en: "", ko: "" } },
-      accountLinks: [],
+      track: state.track || "SPECIAL_12YR",
       gpaData: state.evaluationData?.subjects || [],
-      standardizedTests: [],
-      extracurriculars: [],
       approvedFacts: []
     } as any),
-    [state, guideline]
+    [state]
   );
-
-  const evaluation = useMemo(() => ({ mode: "general", strengths: [], weaknesses: [], overallSummary: "" } as any), []);
 
   if (!ready) return null;
 
@@ -62,19 +30,22 @@ export default function OcrPage() {
       <main className="main">
         <header className="page-header">
           <div>
-            <div className="eyebrow">Step 01 / 05</div>
-            <h1 style={{ marginTop: 6 }}>
-              {locale === "ko" ? "OCR 서류 검토" : "OCR Document Review"}
+            <div className="eyebrow">
+              <FileSearch size={12} style={{ display: "inline", marginRight: 6 }} />
+              {locale === "ko" ? "서류 검토" : "Document Review"}
+            </div>
+            <h1 style={{ fontSize: "clamp(28px, 3.4vw, 40px)", marginTop: 6 }}>
+              {locale === "ko" ? "학업 서류 승인" : "Approve Academic Docs"}
             </h1>
-            <p className="lead">
+            <p className="lead" style={{ fontSize: 17 }}>
               {locale === "ko"
-                ? "성적표를 업로드하고 AI가 추출한 데이터를 직접 확인 후 승인합니다. 승인 전까지는 다음 단계를 진행할 수 없습니다."
-                : "Upload your transcript and approve AI-extracted records. Nothing proceeds until you approve."}
+                ? "성적표를 업로드하고 AI가 추출한 데이터를 승인하세요. 이 데이터가 모든 자소서의 근거가 됩니다."
+                : "Upload transcripts and approve AI-extracted data. These facts are the foundation of your essays."}
             </p>
           </div>
         </header>
 
-        <div className="grid auto">
+        <div className="grid" style={{ maxWidth: 980 }}>
           <OcrPanel
             locale={locale}
             profile={profile}
@@ -105,24 +76,12 @@ export default function OcrPage() {
               }
             }}
           />
-          <div className="grid">
-            <UniversitySelector
-              locale={locale}
-              profile={profile}
-              evaluation={evaluation}
-              guideline={guideline}
-              targetGuidelineId={targetGuidelineId}
-              onSelectGuideline={(id) => update({ targetGuidelineId: id })}
-            />
-            <DocumentChecklist locale={locale} guideline={guideline} />
-            <AccountLinks locale={locale} profile={profile} />
-          </div>
         </div>
 
         {approved && (
-          <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end" }}>
-            <Link href="/b2c/evaluation" className="button primary" style={{ fontSize: 14, padding: "0 24px", minHeight: 44 }}>
-              {locale === "ko" ? "다음: 스펙 평가" : "Next: Profile Evaluation"}
+          <div className="split-actions">
+            <Link href="/b2c/profile" className="button primary">
+              {locale === "ko" ? "나의 스펙 확인하기" : "View My Profile Spec"}
               <ArrowRight size={16} />
             </Link>
           </div>

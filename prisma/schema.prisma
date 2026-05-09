@@ -58,6 +58,12 @@ model StudentProfile {
   track      Track?
   status     String  @default("ONBOARDING") // ONBOARDING, OCR_REVIEW, EVALUATION, STORY_BUILDER, FINALIZED
 
+  // Persistence for work-in-progress state
+  selectedThemeId   String?
+  storyAnswer       String? @db.Text
+  targetGuidelineId String?
+  evaluationResult  Json?   // AI spec evaluation results (strengths, weaknesses, etc.)
+
   // Relations
   documents  Document[]
   essays     Essay[]

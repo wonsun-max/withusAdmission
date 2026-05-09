@@ -54,6 +54,26 @@ export class StudentService {
   }
 
   /**
+   * Updates all workspace state fields in one transaction.
+   */
+  static async updateWorkspaceState(userId: string, data: {
+    selectedThemeId?: string;
+    storyAnswer?: string;
+    targetGuidelineId?: string;
+    evaluationResult?: any;
+    track?: AdmissionTrack;
+    status?: string;
+  }) {
+    return db.studentProfile.update({
+      where: { userId },
+      data: {
+        ...data,
+        track: data.track ? (data.track as Track) : undefined,
+      },
+    });
+  }
+
+  /**
    * Marks a document as approved and extracts facts (OCR data).
    */
   static async approveDocument(documentId: string) {

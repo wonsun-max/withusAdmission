@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 
 export default function OnboardingPage() {
@@ -39,95 +38,79 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="app-shell" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+    <div
+      className="app-shell"
+      style={{
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "var(--spacing-section) var(--spacing-lg)",
+        background: "var(--colors-canvas)",
+      }}
+    >
+      <div
+        className="panel pad"
         style={{
-          width: "100%",
           maxWidth: 480,
-          background: "var(--surface)",
-          padding: 40,
-          borderRadius: 24,
-          border: "1px solid var(--border)",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.08)",
+          width: "100%",
+          padding: "var(--spacing-xxl) var(--spacing-xl)",
         }}
       >
-        <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Welcome to WITHUS Admission</h1>
-        <p style={{ color: "var(--muted)", marginBottom: 32, fontSize: 14 }}>
-          Before we begin building your master essay, we need a few details to tailor the pipeline for you.
+        <h1 style={{ fontSize: 28, lineHeight: 1.14, marginBottom: 8 }}>
+          Welcome to WithUs
+        </h1>
+        <p style={{ fontSize: 17, lineHeight: 1.47, marginBottom: "var(--spacing-xl)" }}>
+          입시 파이프라인을 시작하기 전에 기본 정보를 입력해주세요.
         </p>
 
         {error && (
-          <div style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444", padding: 12, borderRadius: 8, marginBottom: 24, fontSize: 13 }}>
+          <div
+            style={{
+              padding: "var(--spacing-sm) var(--spacing-md)",
+              borderRadius: "var(--rounded-sm)",
+              border: "1px solid var(--colors-hairline)",
+              background: "var(--colors-surface-pearl)",
+              color: "var(--colors-ink)",
+              fontSize: 14,
+              marginBottom: "var(--spacing-lg)",
+            }}
+          >
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-          <div>
-            <label htmlFor="fullName" style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 8, color: "var(--muted)" }}>
-              Full Name (Legal Name)
-            </label>
+        <form onSubmit={handleSubmit} className="form-grid">
+          <div className="field">
+            <label htmlFor="fullName">이름 (법적 이름)</label>
             <input
               id="fullName"
               name="fullName"
               type="text"
               required
-              placeholder="e.g. Hong Gildong"
-              style={{
-                width: "100%", padding: "12px 16px", borderRadius: 12,
-                border: "1px solid var(--border)", background: "transparent",
-                color: "var(--text)", fontSize: 15, outline: "none"
-              }}
+              placeholder="예: 홍길동"
             />
           </div>
 
-          <div>
-            <label htmlFor="track" style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 8, color: "var(--muted)" }}>
-              Admission Track
-            </label>
-            <div style={{ position: "relative" }}>
-              <select
-                id="track"
-                name="track"
-                required
-                defaultValue=""
-                style={{
-                  width: "100%", padding: "12px 16px", borderRadius: 12,
-                  border: "1px solid var(--border)", background: "transparent",
-                  color: "var(--text)", fontSize: 15, outline: "none",
-                  appearance: "none", cursor: "pointer"
-                }}
-              >
-                <option value="" disabled>Select your track...</option>
-                <option value="SPECIAL_12YR">12-Year Overseas (12년 특례)</option>
-                <option value="SPECIAL_3YR">3-Year Overseas (3년 특례)</option>
-              </select>
-              <div style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "var(--muted)" }}>
-                ▼
-              </div>
-            </div>
+          <div className="field">
+            <label htmlFor="track">입학 트랙</label>
+            <select id="track" name="track" required defaultValue="">
+              <option value="" disabled>
+                트랙을 선택하세요...
+              </option>
+              <option value="SPECIAL_12YR">12년 특례 (12-Year Overseas)</option>
+              <option value="SPECIAL_3YR">3년 특례 (3-Year Overseas)</option>
+            </select>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            style={{
-              marginTop: 8,
-              width: "100%", padding: "14px", borderRadius: 12,
-              background: "var(--accent)", color: "#fff",
-              fontWeight: 600, fontSize: 15, border: "none",
-              cursor: loading ? "not-allowed" : "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              transition: "opacity 0.2s"
-            }}
+            className="button primary"
+            style={{ width: "100%", justifyContent: "center", marginTop: 8 }}
           >
-            {loading ? <Loader2 className="spin" size={18} /> : "Continue to Workspace"}
+            {loading ? <Loader2 className="spin" size={18} /> : "워크스페이스로 이동"}
           </button>
         </form>
-      </motion.div>
+      </div>
     </div>
   );
 }
