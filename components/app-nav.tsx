@@ -28,7 +28,6 @@ type NavItem = {
   labelEn: string;
 };
 
-/** Module-based navigation — fully decoupled and modular. */
 const STUDENT_NAV: NavItem[] = [
   { href: "/b2c/workspace",   icon: LayoutDashboard, labelKo: "대시보드",     labelEn: "Dashboard" },
   { href: "/b2c/profile",     icon: UserCircle,      labelKo: "나의 스펙",     labelEn: "My Profile" },
@@ -62,12 +61,22 @@ export function AppNav({ mode, locale = "ko" }: Props) {
 
   return (
     <aside className="sidebar">
-      <Link href="/" className="app-nav-brand">
-        <img src="/img/logo.png" alt="WithUs" />
-        <span>WithUs</span>
+      <Link href="/" className="app-nav-brand" style={{ 
+        display: "flex", 
+        alignItems: "center", 
+        gap: 12, 
+        padding: "0 12px", 
+        marginBottom: 48, 
+        textDecoration: "none",
+        color: "var(--colors-ink)"
+      }}>
+        <div style={{ width: 34, height: 34, background: "var(--colors-ink)", borderRadius: 8, display: "grid", placeItems: "center" }}>
+          <Sparkles size={20} color="white" />
+        </div>
+        <span style={{ fontWeight: 800, fontSize: 18, fontFamily: "Outfit" }}>WithUs</span>
       </Link>
 
-      <nav className="app-nav-links" aria-label={mode === "student" ? "Student workspace" : "Consultant workspace"}>
+      <nav className="app-nav-links" style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -76,31 +85,67 @@ export function AppNav({ mode, locale = "ko" }: Props) {
               key={item.href}
               href={item.href}
               className={`nav-link ${isActive ? "active" : ""}`}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "12px 16px",
+                borderRadius: "var(--rounded-md)",
+                fontSize: 14,
+                fontWeight: isActive ? 600 : 500,
+                color: isActive ? "var(--colors-primary)" : "var(--colors-ink-muted-64)",
+                background: isActive ? "rgba(0, 102, 204, 0.06)" : "transparent",
+                textDecoration: "none",
+                transition: "all 0.2s ease"
+              }}
             >
-              <Icon size={14} />
+              <Icon size={18} />
               {locale === "ko" ? item.labelKo : item.labelEn}
             </Link>
           );
         })}
-
-        {/* Cross-section shortcut */}
-        {mode === "student" ? (
-          <Link href="/b2b/dashboard" className="nav-link">
-            <BarChart3 size={14} />
-            {locale === "ko" ? "컨설턴트" : "Consultant"}
-          </Link>
-        ) : (
-          <Link href="/b2c/workspace" className="nav-link">
-            <GraduationCap size={14} />
-            {locale === "ko" ? "학생" : "Student"}
-          </Link>
-        )}
       </nav>
 
-      <button className="app-nav-logout" onClick={handleLogout}>
-        <LogOut size={13} />
-        {locale === "ko" ? "로그아웃" : "Logout"}
-      </button>
+      <div style={{ marginTop: "auto", padding: "0 12px" }}>
+        <div style={{ borderTop: "1px solid rgba(0,0,0,0.05)", paddingTop: 24, marginBottom: 24 }}>
+          {mode === "student" ? (
+            <Link href="/b2b/dashboard" style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: "var(--colors-ink-muted-48)", fontSize: 13 }}>
+              <BarChart3 size={16} />
+              {locale === "ko" ? "컨설턴트 모드" : "Consultant Mode"}
+            </Link>
+          ) : (
+            <Link href="/b2c/workspace" style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: "var(--colors-ink-muted-48)", fontSize: 13 }}>
+              <GraduationCap size={16} />
+              {locale === "ko" ? "학생 모드" : "Student Mode"}
+            </Link>
+          )}
+        </div>
+        <button 
+          onClick={handleLogout}
+          style={{ 
+            display: "flex", 
+            alignItems: "center", 
+            gap: 12, 
+            background: "transparent", 
+            border: "none", 
+            color: "#ff3b30", 
+            cursor: "pointer", 
+            fontSize: 14,
+            fontWeight: 600,
+            padding: "8px 4px"
+          }}
+        >
+          <LogOut size={18} />
+          {locale === "ko" ? "로그아웃" : "Logout"}
+        </button>
+      </div>
+
+      <style jsx>{`
+        .nav-link:hover {
+          background: rgba(0, 0, 0, 0.03);
+          color: var(--colors-ink) !important;
+        }
+      `}</style>
     </aside>
   );
 }

@@ -78,7 +78,6 @@ export function OcrPanel({ locale, profile, approved, initialData, onApprove }: 
       const data = await res.json();
       if (data.success) {
         setOcrResult(data);
-        // Automatically update workspace state with the new data
         onApprove({ ...data, preventRedirect: true }); 
       } else {
         alert(data.error || "Analysis Failed");
@@ -99,29 +98,44 @@ export function OcrPanel({ locale, profile, approved, initialData, onApprove }: 
   const awards = data?.awards || [];
 
   return (
-    <div className={`panel pad ${approved ? "accent-glow" : ""}`} style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-      <div className="panel-header">
+    <div className={`panel pad ${approved ? "accent-glow" : ""}`} style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      <div className="panel-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid var(--colors-surface-pearl)", paddingBottom: 24 }}>
         <div>
-          <h2 style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Sparkles size={18} color="var(--brand)" />
+          <h2 style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 24, fontWeight: 800 }}>
+            <Sparkles size={22} color="var(--colors-primary)" />
             {t.title}
           </h2>
-          <p className="panel-label">{t.subtitle}</p>
+          <p className="panel-label" style={{ color: "var(--colors-ink-muted-48)", marginTop: 4 }}>{t.subtitle}</p>
         </div>
-        <span className={`badge ${approved ? "success" : "warning"}`}>
-          {approved ? <CheckCircle2 size={11} /> : <AlertTriangle size={11} />}
+        <span className={`badge ${approved ? "success" : "warning"}`} style={{ 
+          padding: "8px 16px", 
+          borderRadius: 99, 
+          fontSize: 13, 
+          fontWeight: 600,
+          background: approved ? "rgba(52, 199, 89, 0.1)" : "rgba(255, 149, 0, 0.1)",
+          color: approved ? "#248a3d" : "#c27200",
+          display: "flex",
+          alignItems: "center",
+          gap: 6
+        }}>
+          {approved ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}
           {approved ? t.approved : t.warning}
         </span>
       </div>
 
       {persona && (
-        <div className="persona-card" style={{ background: "rgba(47, 128, 237, 0.05)", padding: 20, borderRadius: 16, border: "1px solid rgba(47, 128, 237, 0.1)" }}>
-          <div className="eyebrow" style={{ color: "var(--brand)", marginBottom: 8 }}>{t.persona}</div>
-          <h3 style={{ fontSize: 20, fontWeight: 800, marginBottom: 12 }}>"{persona.title}"</h3>
-          <p style={{ fontSize: 15, lineHeight: 1.6, color: "var(--text-muted)", marginBottom: 16 }}>{persona.summary}</p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <div className="persona-card" style={{ 
+          background: "linear-gradient(135deg, rgba(0, 102, 204, 0.05) 0%, rgba(88, 86, 214, 0.05) 100%)", 
+          padding: 32, 
+          borderRadius: 24, 
+          border: "1px solid rgba(0, 102, 204, 0.1)" 
+        }}>
+          <div className="eyebrow" style={{ marginBottom: 12 }}>{t.persona}</div>
+          <h3 style={{ fontSize: 24, fontWeight: 800, marginBottom: 16 }}>"{persona.title}"</h3>
+          <p style={{ fontSize: 16, lineHeight: 1.7, color: "var(--colors-ink-muted-80)", marginBottom: 20 }}>{persona.summary}</p>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             {persona.interests?.map((interest: string, i: number) => (
-              <span key={i} className="badge brand" style={{ padding: "4px 10px" }}>#{interest}</span>
+              <span key={i} className="badge brand" style={{ padding: "6px 14px", borderRadius: 99, fontSize: 12 }}>#{interest}</span>
             ))}
           </div>
         </div>
@@ -129,77 +143,55 @@ export function OcrPanel({ locale, profile, approved, initialData, onApprove }: 
 
       {academic && (
         <div className="academic-section">
-          <div className="section-label" style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
-            <GraduationCap size={16} />
+          <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 20, display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ padding: 8, background: "var(--colors-surface-pearl)", borderRadius: 10 }}><GraduationCap size={18} /></div>
             {t.academic}
           </div>
-          <div className="insight info-bg" style={{ marginBottom: 16 }}>
-             <p style={{ fontSize: 13, lineHeight: 1.5 }}>{academic.trajectory}</p>
+          <div className="insight" style={{ marginBottom: 24, padding: 20, background: "var(--colors-surface-pearl)", borderRadius: 16, borderLeft: "4px solid var(--colors-primary)" }}>
+             <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--colors-ink-muted-64)" }}>{academic.trajectory}</p>
           </div>
-          <div className="table-wrap">
-            <div className="table-row header" style={{ gridTemplateColumns: "1.5fr 0.8fr 2fr" }}>
+          <div className="table-wrap" style={{ border: "1px solid var(--colors-surface-pearl)", borderRadius: 16, overflow: "hidden" }}>
+            <div className="table-row header" style={{ gridTemplateColumns: "1.5fr 0.8fr 2fr", background: "var(--colors-surface-pearl)", padding: "16px 24px", fontWeight: 700, fontSize: 13 }}>
               <span>{t.subject}</span>
               <span>{t.score}</span>
               <span>{t.significance}</span>
             </div>
             {subjects.map((rec: any, idx: number) => (
-              <div key={idx} className="table-row highlight" style={{ gridTemplateColumns: "1.5fr 0.8fr 2fr" }}>
-                <span style={{ fontWeight: 600 }}>{rec.name || rec.subject}</span>
-                <span>{rec.score}</span>
-                <span style={{ color: "var(--text-muted)", fontSize: 12 }}>{rec.significance}</span>
+              <div key={idx} className="table-row" style={{ gridTemplateColumns: "1.5fr 0.8fr 2fr", padding: "20px 24px", borderBottom: "1px solid var(--colors-surface-pearl)", fontSize: 14 }}>
+                <span style={{ fontWeight: 700 }}>{rec.name || rec.subject}</span>
+                <span style={{ fontWeight: 600, color: "var(--colors-primary)" }}>{rec.score}</span>
+                <span style={{ color: "var(--colors-ink-muted-64)", fontSize: 13 }}>{rec.significance}</span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {(activities.length > 0 || awards.length > 0) && (
-        <div className="experience-section">
-          <div className="section-label" style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
-            <ClipboardCheck size={16} />
-            {t.experience}
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            {activities.map((act: any, i: number) => (
-              <div key={i} className="panel pad" style={{ padding: 16, background: "rgba(255,255,255,0.02)" }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "var(--brand)", marginBottom: 4 }}>ACTIVITY</div>
-                <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{act.name}</div>
-                <p style={{ fontSize: 12, color: "var(--text-muted)" }}>{act.impact}</p>
-              </div>
-            ))}
-            {awards.map((awd: any, i: number) => (
-              <div key={i} className="panel pad" style={{ padding: 16, background: "rgba(16, 185, 129, 0.03)", borderColor: "rgba(16, 185, 129, 0.1)" }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "var(--accent)", marginBottom: 4 }}>AWARD</div>
-                <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{awd.name}</div>
-                <p style={{ fontSize: 12, color: "var(--text-muted)" }}>{awd.significance}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 12 }}>
-        <div style={{ display: "flex", gap: 8 }}>
-          <label className="button" style={{ flex: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 48 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 16 }}>
+        <div style={{ display: "flex", gap: 12 }}>
+          <label className="button outline" style={{ flex: 1, height: 56 }}>
             <input type="file" hidden onChange={handleFileUpload} disabled={isUploading} />
-            {isUploading ? <Loader2 className="spin" size={16} /> : <Upload size={16} />}
+            {isUploading ? <Loader2 className="spin" size={18} /> : <Upload size={18} />}
             <span style={{ marginLeft: 8 }}>{isUploading ? t.processing : t.upload}</span>
           </label>
           
           {!approved && data && (
-            <button className="button primary" style={{ flex: 1.5, minHeight: 48 }} onClick={() => onApprove(ocrResult)}>
-              <CheckCircle2 size={16} />
+            <button className="button brand" style={{ flex: 1.5, height: 56 }} onClick={() => onApprove(ocrResult)}>
+              <CheckCircle2 size={18} />
               <span style={{ marginLeft: 8 }}>{t.approve}</span>
             </button>
           )}
         </div>
         
         {data && !approved && (
-          <p style={{ fontSize: 12, color: "var(--colors-primary)", textAlign: "center", fontWeight: 500 }}>
-            {locale === "ko" 
-              ? "✓ 데이터가 서버에 안전하게 저장되었습니다. 검토 후 승인 버튼을 눌러주세요." 
-              : "✓ Data safely saved to server. Please review and click Approve."}
-          </p>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "12px", background: "rgba(0, 102, 204, 0.05)", borderRadius: 12 }}>
+            <CheckCircle2 size={14} color="var(--colors-primary)" />
+            <span style={{ fontSize: 13, color: "var(--colors-primary)", fontWeight: 600 }}>
+              {locale === "ko" 
+                ? "데이터가 안전하게 저장되었습니다. 검토 후 승인 버튼을 눌러주세요." 
+                : "Data safely saved. Please review and click Approve."}
+            </span>
+          </div>
         )}
       </div>
     </div>
