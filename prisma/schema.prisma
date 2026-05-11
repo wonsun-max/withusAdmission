@@ -20,9 +20,19 @@ enum Track {
 }
 
 enum DocumentType {
-  TRANSCRIPT // 성적표
-  PASSPORT   // 여권/신분증
-  ACTIVITY   // 활동증빙서류
+  APPLICATION     // 1. 입학원서
+  ATTENDANCE      // 2, 3, 6. 수락기간, 해외학교기록, 재학사실증명
+  CONSENT         // 4. 학력조회동의서
+  TRANSCRIPT      // 5. 성적증명 (SPEC)
+  GRADUATION      // 7. 졸업증명
+  LANGUAGE        // 8. 한국어능력 (SPEC)
+  QUALIFICATION   // 9. 출입국사실증명
+  PASSPORT        // 10. 여권사본
+  ACTIVITY        // 11. 비교과활동 (SPEC)
+  ACTIVITY_LIST   // 12. 서류목록표
+  TEST_SCORE      // 13. 표준화학력평가 (SPEC)
+  SCHOOL_INFO     // 14. 학사일정표
+  SCHOOL_PROFILE  // 15. 고교 프로파일 (SPEC_CONTEXT)
   OTHER
 }
 

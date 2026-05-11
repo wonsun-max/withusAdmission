@@ -40,12 +40,13 @@ export type AgentResult<TPayload> = {
 export type OcrParserInput = {
   studentId: string;
   documentUrl?: string;
-  documentType: "transcript" | "activity-proof" | "certificate" | "residence-proof";
+  documentType?: string; // Original hint or "auto" for automatic classification
   curriculumHint?: string;
 };
 
 export type OcrParserOutput = {
-  records: GpaRecord[];
+  classifiedType: string;
+  records: any[]; // Can be GpaRecord, TestRecord, ActivityRecord, etc.
   rawProviderReference?: string;
 };
 
