@@ -131,11 +131,17 @@ model ConsultantStudent {
   @@id([consultantId, studentId]) // 복합 키 (Composite Key)
 }
 
+enum Intake {
+  MARCH
+  SEPTEMBER
+}
+
 // ── 6. UNIVERSITY GUIDELINES (관리자용) ──
 model UniversityGuideline {
   id           String       @id
   university   String
   major        String
+  intake       Intake       @default(MARCH) // 3월 또는 9월 입학 구분
   requirements Json         // 문항, 글자수 제한, 필수 키워드 등
   isActive     Boolean      @default(true)
 
