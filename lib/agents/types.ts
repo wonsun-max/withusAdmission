@@ -54,6 +54,7 @@ export type ProfileEvaluatorInput = {
   studentId: string;
   targetMajor?: string;
   targetUniversity?: string;
+  guidelineId?: string;
 };
 
 export type StoryBuilderInput = {

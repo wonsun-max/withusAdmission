@@ -62,6 +62,10 @@ export const profileEvaluatorAgent: AdmissionAgent<ProfileEvaluatorInput, any> =
         data: d.ocrData
       }));
 
+    const guideline = input.guidelineId 
+      ? await db.universityGuideline.findUnique({ where: { id: input.guidelineId } })
+      : null;
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -71,7 +75,11 @@ export const profileEvaluatorAgent: AdmissionAgent<ProfileEvaluatorInput, any> =
         },
         {
           role: "user",
-          content: `Track: ${student.track}\nMajor: ${input.targetMajor}\nApproved Data: ${JSON.stringify(approvedOcr)}`,
+          content: `Track: ${student.track}
+Major: ${input.targetMajor}
+Target University: ${guideline?.university || "General"}
+University Selection Criteria: ${JSON.stringify(guideline?.requirements || "None provided")}
+Approved Student Data: ${JSON.stringify(approvedOcr)}`,
         },
       ],
       response_format: { type: "json_object" },
