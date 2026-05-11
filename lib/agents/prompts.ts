@@ -11,7 +11,7 @@ export const agentPrompts = {
     classificationTypes: [
       "APPLICATION", "ATTENDANCE", "CONSENT", "TRANSCRIPT", "GRADUATION", 
       "LANGUAGE", "QUALIFICATION", "PASSPORT", "ACTIVITY", "ACTIVITY_LIST", 
-      "TEST_SCORE", "SCHOOL_INFO", "SCHOOL_PROFILE"
+      "TEST_SCORE", "SCHOOL_INFO", "SCHOOL_PROFILE", "OTHER"
     ],
     guardrails: [
       "Never infer a missing score.",
