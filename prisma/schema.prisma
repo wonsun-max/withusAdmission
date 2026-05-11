@@ -71,34 +71,56 @@ model StudentProfile {
   // Persistence for work-in-progress state
   selectedThemeId   String?
   storyAnswer       String? @db.Text
-  targetGuidelineIds String[] 
-  evaluationResult  Json?   // AI spec evaluation results (strengths, weaknesses, etc.)
-
+  
   // Relations
-  documents  Document[]
-  essays     Essay[]
-  consultants ConsultantStudent[] @relation("StudentToMap")
+  documents     Document[]
+  essays        Essay[]
+  applications  UniversityApplication[] // New: University-specific application slots
+  consultants   ConsultantStudent[] @relation("StudentToMap")
 }
 
-// ── 3. DOCUMENTS (OCR & STORAGE) ──
+// ── 3. UNIVERSITY APPLICATIONS (Per-school Slot) ──
+model UniversityApplication {
+  id           String       @id @default(cuid())
+  studentId    String
+  student      StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  guidelineId  String
+  guideline    UniversityGuideline @relation(fields: [guidelineId], references: [id])
+
+  status       String       @default("DRAFT") // DRAFT, READY, SUBMITTED
+  
+  // School-specific AI insights
+  evaluationResult  Json?   // AI spec evaluation result specific to THIS university
+  
+  // Snapshotted checklist status
+  submissionStatus  Json?   // Computed status of required documents
+
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@unique([studentId, guidelineId]) // One slot per university per student
+}
+
+// ── 4. DOCUMENTS (OCR & STORAGE) ──
 model Document {
   id           String       @id @default(cuid())
   studentId    String
   student      StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
 
   uploaderId   String
-  uploader     User         @relation("UploaderToDocument", fields: [uploaderId], references: [id]) // 업로더 추적 (학생 본인 or 학교 교사)
+  uploader     User         @relation("UploaderToDocument", fields: [uploaderId], references: [id]) 
 
   type         DocumentType
-  storagePath  String       // Supabase Storage 경로
-  ocrData      Json?        // Upstage AI가 파싱한 결과물
+  storagePath  String       
+  ocrData      Json?        
   isApproved   Boolean      @default(false)
 
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 }
 
-// ── 4. ESSAYS (자소서 파이프라인) ──
+// ── 5. ESSAYS (자소서 파이프라인) ──
 model Essay {
   id             String       @id @default(cuid())
   studentId      String
@@ -111,13 +133,13 @@ model Essay {
   masterKo       String?      @db.Text
   tailoredResult String?      @db.Text
   
-  factWarnings   Json?        // 팩트체크 경고 내역 (오류가 없으면 null 또는 빈 배열)
+  factWarnings   Json?        
 
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 }
 
-// ── 5. CONSULTANT-STUDENT MAPPING (B2B 권한) ──
+// ── 6. CONSULTANT-STUDENT MAPPING (B2B 권한) ──
 model ConsultantStudent {
   consultantId String
   consultant   User         @relation("ConsultantToMap", fields: [consultantId], references: [id], onDelete: Cascade)
@@ -128,7 +150,7 @@ model ConsultantStudent {
   accessLevel  AccessLevel  @default(VIEW)
   createdAt    DateTime     @default(now())
 
-  @@id([consultantId, studentId]) // 복합 키 (Composite Key)
+  @@id([consultantId, studentId]) 
 }
 
 enum Intake {
@@ -136,14 +158,15 @@ enum Intake {
   SEPTEMBER
 }
 
-// ── 6. UNIVERSITY GUIDELINES (관리자용) ──
+// ── 7. UNIVERSITY GUIDELINES (관리자용) ──
 model UniversityGuideline {
   id           String       @id
   university   String
   major        String
-  intake       Intake       @default(MARCH) // 3월 또는 9월 입학 구분
-  requirements Json         // 문항, 글자수 제한, 필수 키워드 등
+  intake       Intake       @default(MARCH) 
+  requirements Json         
   isActive     Boolean      @default(true)
 
+  applications UniversityApplication[]
   essays       Essay[]
 }

@@ -12,6 +12,11 @@ export class StudentService {
       include: {
         user: true,
         documents: true,
+        applications: {
+          include: {
+            guideline: true,
+          },
+        },
         essays: {
           include: {
             guideline: true,
@@ -22,25 +27,47 @@ export class StudentService {
   }
 
   /**
-   * Updates the student's admission track and status.
+   * Updates all workspace state fields and syncs university applications.
    */
-  static async updateTrack(userId: string, track: AdmissionTrack) {
-    return db.studentProfile.update({
+  static async updateWorkspaceState(userId: string, data: {
+    selectedThemeId?: string;
+    storyAnswer?: string;
+    targetGuidelineIds?: string[];
+    track?: AdmissionTrack;
+    status?: string;
+  }) {
+    // 1. Basic profile updates
+    const profile = await db.studentProfile.update({
       where: { userId },
       data: {
-        track: track as Track,
+        selectedThemeId: data.selectedThemeId,
+        storyAnswer: data.storyAnswer,
+        track: data.track ? (data.track as Track) : undefined,
+        status: data.status,
       },
     });
-  }
 
-  /**
-   * Updates the pipeline status of the student.
-   */
-  static async updateStatus(userId: string, status: string) {
-    return db.studentProfile.update({
-      where: { userId },
-      data: { status },
-    });
+    // 2. Sync University Applications if guideline IDs provided
+    if (data.targetGuidelineIds) {
+      // Add new ones
+      for (const gid of data.targetGuidelineIds) {
+        await db.universityApplication.upsert({
+          where: { studentId_guidelineId: { studentId: userId, guidelineId: gid } },
+          update: {},
+          create: { studentId: userId, guidelineId: gid }
+        });
+      }
+
+      // Optionally: Delete ones not in the list (if user removed a university)
+      await db.universityApplication.deleteMany({
+        where: {
+          studentId: userId,
+          guidelineId: { notIn: data.targetGuidelineIds }
+        }
+      });
+    }
+
+    return profile;
   }
 
   /**
@@ -54,32 +81,54 @@ export class StudentService {
   }
 
   /**
-   * Updates all workspace state fields in one transaction.
-   */
-  static async updateWorkspaceState(userId: string, data: {
-    selectedThemeId?: string;
-    storyAnswer?: string;
-    targetGuidelineIds?: string[];
-    evaluationResult?: any;
-    track?: AdmissionTrack;
-    status?: string;
-  }) {
-    return db.studentProfile.update({
-      where: { userId },
-      data: {
-        ...data,
-        track: data.track ? (data.track as Track) : undefined,
-      },
-    });
-  }
-
-  /**
-   * Marks a document as approved and extracts facts (OCR data).
+   * Marks a document as approved.
    */
   static async approveDocument(documentId: string) {
     return db.document.update({
       where: { id: documentId },
       data: { isApproved: true },
     });
+  }
+
+  /**
+   * Computes the submission checklist for a specific university application.
+   * Maps Global Vault docs to School-specific requirements.
+   */
+  static async getSubmissionChecklist(applicationId: string) {
+    const app = await db.universityApplication.findUnique({
+      where: { id: applicationId },
+      include: {
+        guideline: true,
+        student: {
+          include: { documents: true }
+        }
+      }
+    });
+
+    if (!app) throw new Error("Application not found");
+
+    const requirements = (app.guideline.requirements as any).trackInfo || [];
+    const studentDocs = app.student.documents.filter(d => d.isApproved);
+
+    // Map each requirement to the student's vault
+    const checklist = requirements.map((track: any) => ({
+      trackName: track.trackName,
+      docs: track.docs.map((reqDocName: string) => {
+        // Advanced logic: Try to find a matching document by type or name
+        const match = studentDocs.find(sd => 
+          sd.type.toString().toLowerCase().includes(reqDocName.toLowerCase()) ||
+          reqDocName.toLowerCase().includes(sd.type.toString().toLowerCase())
+        );
+        
+        return {
+          name: reqDocName,
+          status: match ? "ATTACHED" : "MISSING",
+          documentId: match?.id,
+          type: match?.type
+        };
+      })
+    }));
+
+    return checklist;
   }
 }

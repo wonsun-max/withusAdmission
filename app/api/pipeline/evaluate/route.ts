@@ -21,10 +21,24 @@ export async function POST(request: Request) {
     createAgentContext()
   );
 
-  // Persist the evaluation result to the student profile for dashboard use
-  await db.studentProfile.update({
-    where: { userId: user.id },
-    data: { evaluationResult: result.payload as any }
+  // Persist the evaluation result to the specific university application slot
+  await db.universityApplication.upsert({
+    where: {
+      studentId_guidelineId: {
+        studentId: user.id,
+        guidelineId: body.guidelineId || ""
+      }
+    },
+    update: {
+      evaluationResult: result.payload as any,
+      status: "READY"
+    },
+    create: {
+      studentId: user.id,
+      guidelineId: body.guidelineId || "",
+      evaluationResult: result.payload as any,
+      status: "READY"
+    }
   });
 
   return NextResponse.json(result);
