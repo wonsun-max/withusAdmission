@@ -37,11 +37,13 @@ export const agentPrompts = {
     
     3. University Matching: Map the student's spec (GPA, Language, Activities) to the university's specific 'selectionCriteria'.
     
-    4. Strategic Output: Return strengths, one critical weakness relative to THIS university, and a roadmap tailored to the university's preferred student profile.`,
+    4. Gap Analysis: Cross-reference the 'Approved Student Data' with the 'trackInfo' (specifically 'docs' list) from the UniversityGuideline. 
+    
+    5. Strategic Output: Return strengths, one critical weakness relative to THIS university, and a roadmap tailored to the university's preferred student profile. Identify any missing mandatory documents from the school's specific list.`,
     guardrails: [
-      "Strictly evaluate based on the target university's specific criteria, not general standards.",
+      "Strictly evaluate based on the target university's specific criteria and 'trackInfo' provided in the Guideline.",
       "For medical majors, apply the highest level of rigor consistent with top-tier Korean medical schools.",
-      "Explicitly mention if a required document for this university is missing in the 'Gaps' section.",
+      "Explicitly mention if a required document from the university's 'docs' list (e.g., 'Entry and Exit Records', 'School Calendar') is missing.",
       "Never invent student data or admission probability percentages."
     ]
   },

@@ -1,11 +1,14 @@
+const { PrismaClient } = require('@prisma/client');
 require('dotenv').config();
-const { db } = require('../lib/db');
+
+const prisma = new PrismaClient();
+
 
 async function main() {
   try {
-    const guidelines = await db.universityGuideline.findMany();
+    const guidelines = await prisma.universityGuideline.findMany();
     
-    console.log("=== 9 University Document Requirement Audit ===");
+    console.log("=== 9 University Document Requirement Audit (Standalone) ===");
     guidelines.forEach(g => {
       console.log(`\n[${g.university}]`);
       const trackInfo = g.requirements.trackInfo || [];
@@ -16,8 +19,9 @@ async function main() {
       console.log("-----------------------------------");
     });
   } catch (err) {
-    console.error(err);
+    console.error("Audit Error:", err.message);
   } finally {
+    await prisma.$disconnect();
     process.exit(0);
   }
 }

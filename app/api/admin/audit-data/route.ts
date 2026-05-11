@@ -3,20 +3,14 @@ import { db } from '@/lib/db';
 
 export async function GET() {
     try {
-        const guidelines = await db.universityGuideline.findMany({
-            select: {
-                id: true,
-                university: true,
-                major: true,
-                requirements: true
-            }
-        });
+        const guidelines = await db.universityGuideline.findMany();
 
         const audit = guidelines.map(g => ({
-            id: g.id,
             university: g.university,
-            major: g.major,
-            extractedUniversity: (g.requirements as any)?.university
+            tracks: (g.requirements as any)?.trackInfo?.map((t: any) => ({
+                name: t.trackName,
+                docs: t.docs
+            }))
         }));
 
         return NextResponse.json({ success: true, audit });

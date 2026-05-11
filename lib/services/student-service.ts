@@ -110,21 +110,44 @@ export class StudentService {
     const requirements = (app.guideline.requirements as any).trackInfo || [];
     const studentDocs = app.student.documents.filter(d => d.isApproved);
 
-    // Map each requirement to the student's vault
+    // Advanced logic: Map school-specific names to standard types with high-precision keywords
     const checklist = requirements.map((track: any) => ({
       trackName: track.trackName,
       docs: track.docs.map((reqDocName: string) => {
-        // Advanced logic: Try to find a matching document by type or name
-        const match = studentDocs.find(sd => 
-          sd.type.toString().toLowerCase().includes(reqDocName.toLowerCase()) ||
-          reqDocName.toLowerCase().includes(sd.type.toString().toLowerCase())
-        );
+        const lowerName = reqDocName.toLowerCase();
+        
+        // Comprehensive mapping dictionary for Korean top universities
+        const match = studentDocs.find(sd => {
+          const typeStr = sd.type.toString().toLowerCase();
+          
+          // 1. Exact or Partial Type match
+          if (lowerName.includes(typeStr) || typeStr.includes(lowerName)) return true;
+          
+          // 2. Keyword-based synonyms (English & Korean)
+          const synonyms: Record<string, string[]> = {
+            TRANSCRIPT: ["성적", "grade", "academic record", "school record"],
+            GRADUATION: ["졸업", "graduation", "degree", "diploma"],
+            QUALIFICATION: ["출입국", "entry", "exit", "qualification", "exam form"],
+            PASSPORT: ["여권", "passport", "id card"],
+            LANGUAGE: ["한국어", "topik", "language", "proficiency", "ielts", "toefl"],
+            ACTIVITY: ["활동", "activity", "award", "club", "service", "봉사", "수상"],
+            TEST_SCORE: ["학력평가", "test score", "sat", "ap", "ib", "act"],
+            APPLICATION: ["원서", "application"],
+            CONSENT: ["동의서", "consent"],
+            ATTENDANCE: ["재학", "attendance", "enrollment"],
+            SCHOOL_INFO: ["학사일정", "calendar", "school info"],
+            SCHOOL_PROFILE: ["프로파일", "profile", "curriculum"]
+          };
+
+          const keywords = synonyms[sd.type] || [];
+          return keywords.some(k => lowerName.includes(k));
+        });
         
         return {
           name: reqDocName,
           status: match ? "ATTACHED" : "MISSING",
           documentId: match?.id,
-          type: match?.type
+          type: match?.type || "OTHER"
         };
       })
     }));

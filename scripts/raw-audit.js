@@ -1,12 +1,17 @@
+const { Client } = require('pg');
 require('dotenv').config();
-const { db } = require('../lib/db');
+
+const client = new Client({
+  connectionString: process.env.DATABASE_URL,
+});
 
 async function main() {
   try {
-    const guidelines = await db.universityGuideline.findMany();
+    await client.connect();
+    const res = await client.query('SELECT university, requirements FROM "UniversityGuideline"');
     
-    console.log("=== 9 University Document Requirement Audit ===");
-    guidelines.forEach(g => {
+    console.log("=== 9 University Document Requirement Audit (RAW SQL) ===");
+    res.rows.forEach(g => {
       console.log(`\n[${g.university}]`);
       const trackInfo = g.requirements.trackInfo || [];
       trackInfo.forEach(t => {
@@ -16,8 +21,9 @@ async function main() {
       console.log("-----------------------------------");
     });
   } catch (err) {
-    console.error(err);
+    console.error("Audit Error:", err.message);
   } finally {
+    await client.end();
     process.exit(0);
   }
 }
