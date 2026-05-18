@@ -134,6 +134,8 @@ model Essay {
   tailoredResult String?      @db.Text
   
   factWarnings   Json?        
+  
+  chatSessions   ChatSession[]
 
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
@@ -169,4 +171,34 @@ model UniversityGuideline {
 
   applications UniversityApplication[]
   essays       Essay[]
+}
+
+// ── 8. CHAT & AI INTERACTION ──
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+model ChatSession {
+  id        String   @id @default(cuid())
+  essayId   String
+  essay     Essay    @relation(fields: [essayId], references: [id], onDelete: Cascade)
+  
+  messages  Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Message {
+  id            String      @id @default(cuid())
+  sessionId     String
+  session       ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  role          MessageRole
+  content       String      @db.Text
+  metadata      Json?       
+  
+  createdAt     DateTime    @default(now())
 }

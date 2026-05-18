@@ -21,7 +21,6 @@ export async function PATCH(req: Request) {
       selectedThemeId: body.selectedThemeId,
       storyAnswer: body.storyAnswer,
       targetGuidelineIds: body.targetGuidelineIds,
-      evaluationResult: body.evaluationResult,
       track: body.track,
       status: body.status,
     });

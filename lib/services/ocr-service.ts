@@ -25,7 +25,7 @@ export class OCRService {
       },
     });
 
-    await StudentService.updateStatus(userId, "OCR_REVIEW");
+    await StudentService.updateWorkspaceState(userId, { status: "OCR_REVIEW" });
 
     return {
       documentId: doc.id,

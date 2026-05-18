@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     await StudentService.approveDocument(documentId);
 
     // 2. Update student status to move to next step
-    await StudentService.updateStatus(user.id, "EVALUATION_PENDING");
+    await StudentService.updateWorkspaceState(user.id, { status: "EVALUATION_PENDING" });
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

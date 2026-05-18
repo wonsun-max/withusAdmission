@@ -41,7 +41,7 @@ export class AIService {
     const result = JSON.parse(response.choices[0].message.content || "{}");
     
     // Update status in DB
-    await StudentService.updateStatus(studentId, "EVALUATION_COMPLETE");
+    await StudentService.updateWorkspaceState(studentId, { status: "EVALUATION_COMPLETE" });
     
     return result;
   }
