@@ -37,7 +37,8 @@ type QuickAction = {
   icon: React.ElementType;
   label: string;
   prompt: string;
-  color: string;
+  colorClass: string;
+  bgClass: string;
 };
 
 const QUICK_ACTIONS: QuickAction[] = [
@@ -45,35 +46,37 @@ const QUICK_ACTIONS: QuickAction[] = [
     icon: TrendingUp,
     label: "나의 강점 분석",
     prompt: "내 스펙에서 가장 돋보이는 강점은 뭐야? 구체적으로 설명해줘.",
-    color: "#34c759",
+    colorClass: "text-emerald-600 dark:text-emerald-400",
+    bgClass: "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-900/30",
   },
   {
     icon: GraduationCap,
     label: "맞춤 대학 추천",
-    prompt:
-      "내 현재 스펙으로 지원할 수 있는 최적의 대학과 전공 조합을 추천해줘.",
-    color: "#0066cc",
+    prompt: "내 현재 스펙으로 지원할 수 있는 최적의 대학과 전공 조합을 추천해줘.",
+    colorClass: "text-blue-600 dark:text-blue-400",
+    bgClass: "bg-blue-50 dark:bg-blue-950/30 border-blue-100 dark:border-blue-900/30",
   },
   {
     icon: Activity,
     label: "약점 보완 전략",
-    prompt:
-      "내 프로필에서 가장 약한 부분은 어디야? 어떻게 보완할 수 있을까?",
-    color: "#ff9500",
+    prompt: "내 프로필에서 가장 약한 부분은 어디야? 어떻게 보완할 수 있을까?",
+    colorClass: "text-amber-600 dark:text-amber-400",
+    bgClass: "bg-amber-50 dark:bg-amber-950/30 border-amber-100 dark:border-amber-900/30",
   },
   {
     icon: Stethoscope,
     label: "의대 지원 가능성",
-    prompt:
-      "내 스펙으로 의대/치대/약대 지원이 현실적인지 솔직하게 평가해줘.",
-    color: "#ff3b30",
+    prompt: "내 스펙으로 의대/치대/약대 지원이 현실적인지 솔직하게 평가해줘.",
+    colorClass: "text-rose-600 dark:text-rose-400",
+    bgClass: "bg-rose-50 dark:bg-rose-950/30 border-rose-100 dark:border-rose-900/30",
   },
 ];
 
 /**
  * ProfileChat Component.
  * Provides a premium AI 입시 상담 (AI Admission Chatbot) workspace
- * with streaming support, quick action prompts, and spec summaries.
+ * redesigned fully with custom Tailwind CSS utility classes, glassmorphic layout elements,
+ * support for live OpenAI stream tokens, and robust internationalization.
  * 
  * @param {Object} props - Component props.
  * @param {ProfileData} props.profile - The student's academic and activity specifications.
@@ -182,119 +185,46 @@ export default function ProfileChat({
   const specChips = [
     profile.track && {
       label: profile.track === "SPECIAL_12YR" ? "12년 특례" : "3년 특례",
-      color: "#5856d6",
+      styleClass: "bg-indigo-50 text-indigo-600 border-indigo-200 dark:bg-indigo-950/30 dark:text-indigo-400 dark:border-indigo-800/50",
     },
     profile.gpa != null && {
       label: `GPA ${profile.gpa}`,
-      color: "#0066cc",
+      styleClass: "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800/50",
     },
     profile.academicRecords &&
       profile.academicRecords.length > 0 && {
         label: `${profile.academicRecords.length}개 과목`,
-        color: "#34c759",
+        styleClass: "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800/50",
       },
     profile.activities &&
       profile.activities.length > 0 && {
         label: `${profile.activities.length}개 활동`,
-        color: "#ff9500",
+        styleClass: "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800/50",
       },
     profile.applications &&
       profile.applications.length > 0 && {
         label: `${profile.applications.length}개교 지원`,
-        color: "#ff3b30",
+        styleClass: "bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-800/50",
       },
-  ].filter(Boolean) as Array<{ label: string; color: string }>;
+  ].filter(Boolean) as Array<{ label: string; styleClass: string }>;
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "calc(100vh - 40px)",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      {/* Ambient background glow */}
-      <div
-        style={{
-          position: "absolute",
-          top: "20%",
-          right: "-5%",
-          width: 500,
-          height: 500,
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(0,102,204,0.06) 0%, transparent 70%)",
-          filter: "blur(80px)",
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          bottom: "10%",
-          left: "-10%",
-          width: 400,
-          height: 400,
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(88,86,214,0.05) 0%, transparent 70%)",
-          filter: "blur(80px)",
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      />
+    <div className="flex flex-col h-[calc(100vh-40px)] relative overflow-hidden bg-slate-50 dark:bg-slate-950 font-sans">
+      {/* Ambient background glows */}
+      <div className="absolute top-[20%] -right-[5%] w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,_rgba(59,130,246,0.05)_0%,_transparent_70%)] blur-[80px] pointer-events-none z-0" />
+      <div className="absolute bottom-[10%] -left-[10%] w-[400px] h-[400px] rounded-full bg-[radial-gradient(circle,_rgba(99,102,241,0.04)_0%,_transparent_70%)] blur-[80px] pointer-events-none z-0" />
 
       {/* Header with spec chips */}
-      <header
-        style={{
-          padding: "20px 32px",
-          borderBottom: "var(--border-hairline)",
-          background: "var(--colors-surface-glass)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexShrink: 0,
-          zIndex: 10,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 12,
-              background: "linear-gradient(135deg, #0066cc 0%, #5856d6 100%)",
-              display: "grid",
-              placeItems: "center",
-              boxShadow: "0 4px 12px rgba(0,102,204,0.25)",
-            }}
-          >
-            <MessageCircle size={20} color="white" />
+      <header className="px-8 py-4 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl flex items-center justify-between shrink-0 z-10 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+            <MessageCircle size={20} className="text-white" />
           </div>
           <div>
-            <h2
-              style={{
-                fontSize: 16,
-                fontWeight: 800,
-                fontFamily: "Outfit, sans-serif",
-                color: "var(--colors-ink)",
-                lineHeight: 1.2,
-              }}
-            >
+            <h2 className="text-sm font-extrabold text-slate-900 dark:text-slate-50 font-outfit">
               {locale === "ko" ? "AI 입시 상담" : "AI Admission Counselor"}
             </h2>
-            <p
-              style={{
-                fontSize: 11,
-                color: "var(--colors-ink-muted-48)",
-                fontWeight: 500,
-              }}
-            >
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
               {locale === "ko"
                 ? "나의 검증된 스펙 기반 맞춤 상담"
                 : "Personalized advice based on your verified specs"}
@@ -303,27 +233,11 @@ export default function ProfileChat({
         </div>
 
         {/* Spec chips */}
-        <div
-          style={{
-            display: "flex",
-            gap: 8,
-            flexWrap: "wrap",
-            justifyContent: "flex-end",
-          }}
-        >
+        <div className="flex gap-2 flex-wrap justify-end">
           {specChips.map((chip, i) => (
             <span
               key={i}
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                padding: "4px 12px",
-                borderRadius: 99,
-                background: `${chip.color}10`,
-                color: chip.color,
-                border: `1px solid ${chip.color}20`,
-                whiteSpace: "nowrap",
-              }}
+              className={`text-[10px] font-bold px-3 py-1 rounded-full border ${chip.styleClass} white-space-nowrap`}
             >
               {chip.label}
             </span>
@@ -332,68 +246,25 @@ export default function ProfileChat({
       </header>
 
       {/* Messages area */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: "32px 32px 16px",
-          position: "relative",
-          zIndex: 1,
-        }}
-      >
+      <div className="flex-1 overflow-y-auto px-8 py-8 space-y-6 relative z-1">
         {/* Welcome state with quick actions */}
         {messages.length === 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "100%",
-              gap: 32,
-            }}
+            className="flex flex-col items-center justify-center min-h-[85%] gap-8 text-center max-w-2xl mx-auto"
           >
             {/* Hero icon */}
-            <div
-              style={{
-                width: 80,
-                height: 80,
-                borderRadius: 24,
-                background:
-                  "linear-gradient(135deg, #0066cc 0%, #5856d6 100%)",
-                display: "grid",
-                placeItems: "center",
-                boxShadow: "0 12px 40px rgba(0,102,204,0.2)",
-              }}
-            >
-              <Sparkles size={36} color="white" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-xl shadow-blue-500/20">
+              <Sparkles size={28} className="text-white" />
             </div>
 
-            <div style={{ textAlign: "center", maxWidth: 480 }}>
-              <h3
-                style={{
-                  fontSize: 28,
-                  fontWeight: 800,
-                  fontFamily: "Outfit, sans-serif",
-                  color: "var(--colors-ink)",
-                  marginBottom: 12,
-                  lineHeight: 1.2,
-                }}
-              >
-                {locale === "ko"
-                  ? "무엇이든 물어보세요"
-                  : "Ask me anything"}
+            <div className="space-y-3">
+              <h3 className="text-2xl font-extrabold text-slate-950 dark:text-slate-50 font-outfit tracking-tight">
+                {locale === "ko" ? "무엇이든 물어보세요" : "Ask me anything"}
               </h3>
-              <p
-                style={{
-                  fontSize: 15,
-                  color: "var(--colors-ink-muted-64)",
-                  lineHeight: 1.6,
-                }}
-              >
+              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-md mx-auto">
                 {locale === "ko"
                   ? "나의 성적, 활동, 지원 전략에 대해 AI 입시 전문가와 자유롭게 대화하세요. 검증된 스펙 데이터를 기반으로 정확한 조언을 드립니다."
                   : "Chat freely about your grades, activities, and application strategy. I provide accurate advice based on your verified spec data."}
@@ -402,15 +273,7 @@ export default function ProfileChat({
 
             {/* Quick action grid */}
             {showQuickActions && (
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(2, 1fr)",
-                  gap: 12,
-                  width: "100%",
-                  maxWidth: 520,
-                }}
-              >
+              <div className="grid grid-cols-2 gap-3 w-full max-w-lg mt-2">
                 {QUICK_ACTIONS.map((action, i) => {
                   const Icon = action.icon;
                   return (
@@ -420,50 +283,12 @@ export default function ProfileChat({
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2 + i * 0.08, duration: 0.35 }}
                       onClick={() => sendMessage(action.prompt)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                        padding: "14px 16px",
-                        borderRadius: "var(--rounded-md)",
-                        border: "var(--border-hairline)",
-                        background: "var(--colors-surface-white)",
-                        cursor: "pointer",
-                        textAlign: "left",
-                        transition: "all 0.2s ease",
-                        boxShadow: "var(--shadow-premium)",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = "translateY(-2px)";
-                        e.currentTarget.style.boxShadow =
-                          "0 8px 24px rgba(0,0,0,0.08)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = "translateY(0)";
-                        e.currentTarget.style.boxShadow =
-                          "var(--shadow-premium)";
-                      }}
+                      className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/50 hover:bg-slate-50 dark:hover:bg-slate-900/80 cursor-pointer text-left transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 group"
                     >
-                      <div
-                        style={{
-                          width: 36,
-                          height: 36,
-                          borderRadius: 10,
-                          background: `${action.color}10`,
-                          display: "grid",
-                          placeItems: "center",
-                          flexShrink: 0,
-                        }}
-                      >
-                        <Icon size={18} color={action.color} />
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border ${action.bgClass}`}>
+                        <Icon size={18} className={action.colorClass} />
                       </div>
-                      <span
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 600,
-                          color: "var(--colors-ink)",
-                        }}
-                      >
+                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300 group-hover:text-slate-950 dark:group-hover:text-slate-100 transition-colors">
                         {action.label}
                       </span>
                     </motion.button>
@@ -484,67 +309,26 @@ export default function ProfileChat({
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-                style={{
-                  display: "flex",
-                  gap: 14,
-                  marginBottom: 24,
-                  justifyContent: isUser ? "flex-end" : "flex-start",
-                }}
+                className={`flex gap-3.5 ${isUser ? "justify-end" : "justify-start"}`}
               >
                 {/* Bot avatar */}
                 {!isUser && (
-                  <div
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 12,
-                      background:
-                        "linear-gradient(135deg, #0066cc 0%, #5856d6 100%)",
-                      display: "grid",
-                      placeItems: "center",
-                      flexShrink: 0,
-                      boxShadow: "0 2px 8px rgba(0,102,204,0.2)",
-                    }}
-                  >
-                    <Bot size={18} color="white" />
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
+                    <Bot size={18} className="text-white" />
                   </div>
                 )}
 
                 {/* Message bubble */}
                 <div
-                  style={{
-                    maxWidth: "75%",
-                    padding: "14px 18px",
-                    borderRadius: isUser
-                      ? "18px 18px 4px 18px"
-                      : "18px 18px 18px 4px",
-                    background: isUser
-                      ? "var(--colors-ink)"
-                      : "var(--colors-surface-white)",
-                    color: isUser ? "white" : "var(--colors-ink)",
-                    fontSize: 14,
-                    lineHeight: 1.7,
-                    whiteSpace: "pre-wrap",
-                    wordBreak: "break-word",
-                    border: isUser ? "none" : "var(--border-hairline)",
-                    boxShadow: isUser
-                      ? "0 4px 12px rgba(0,0,0,0.1)"
-                      : "var(--shadow-premium)",
-                  }}
+                  className={`max-w-[75%] px-5 py-3.5 text-sm leading-relaxed whitespace-pre-wrap break-words shadow-sm font-medium ${
+                    isUser
+                      ? "rounded-[18px_18px_4px_18px] bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950"
+                      : "rounded-[18px_18px_18px_4px] bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-200 border border-slate-200/80 dark:border-slate-800/80"
+                  }`}
                 >
                   {m.content || (
-                    <span
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 6,
-                        color: "var(--colors-ink-muted-48)",
-                      }}
-                    >
-                      <Loader2
-                        size={14}
-                        style={{ animation: "spin 1s linear infinite" }}
-                      />
+                    <span className="inline-flex items-center gap-2 text-slate-400 dark:text-slate-500">
+                      <Loader2 size={14} className="animate-spin" />
                       생각 중...
                     </span>
                   )}
@@ -552,19 +336,8 @@ export default function ProfileChat({
 
                 {/* User avatar */}
                 {isUser && (
-                  <div
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 12,
-                      background: "var(--colors-surface-pearl)",
-                      border: "var(--border-hairline)",
-                      display: "grid",
-                      placeItems: "center",
-                      flexShrink: 0,
-                    }}
-                  >
-                    <User size={16} color="var(--colors-ink-muted-64)" />
+                  <div className="w-9 h-9 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0">
+                    <User size={16} className="text-slate-400 dark:text-slate-500" />
                   </div>
                 )}
               </motion.div>
@@ -577,27 +350,8 @@ export default function ProfileChat({
       </div>
 
       {/* Input bar */}
-      <div
-        style={{
-          padding: "16px 32px 24px",
-          background: "var(--colors-surface-glass)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderTop: "var(--border-hairline)",
-          flexShrink: 0,
-          zIndex: 10,
-        }}
-      >
-        <form
-          onSubmit={handleSubmit}
-          style={{
-            maxWidth: 800,
-            margin: "0 auto",
-            position: "relative",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
+      <footer className="px-8 py-5 border-t border-slate-200/80 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl shrink-0 z-10">
+        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto relative flex items-center">
           <input
             ref={inputRef}
             type="text"
@@ -609,89 +363,26 @@ export default function ProfileChat({
                 : "Ask anything about your specs..."
             }
             disabled={isLoading}
-            style={{
-              width: "100%",
-              background: "var(--colors-surface-white)",
-              border: "var(--border-hairline)",
-              color: "var(--colors-ink)",
-              borderRadius: 99,
-              padding: "16px 56px 16px 24px",
-              fontSize: 15,
-              outline: "none",
-              boxShadow: "var(--shadow-premium)",
-              transition: "box-shadow 0.2s ease",
-              fontFamily: "Inter, sans-serif",
-            }}
-            onFocus={(e) => {
-              e.currentTarget.style.boxShadow =
-                "0 0 0 2px rgba(0,102,204,0.2), var(--shadow-premium)";
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.boxShadow = "var(--shadow-premium)";
-            }}
+            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-50 rounded-full py-4 pl-6 pr-16 text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
           />
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            style={{
-              position: "absolute",
-              right: 6,
-              width: 44,
-              height: 44,
-              borderRadius: "50%",
-              border: "none",
-              background:
-                isLoading || !input.trim()
-                  ? "var(--colors-ink-muted-24)"
-                  : "linear-gradient(135deg, #0066cc 0%, #5856d6 100%)",
-              color: "white",
-              cursor:
-                isLoading || !input.trim() ? "not-allowed" : "pointer",
-              display: "grid",
-              placeItems: "center",
-              transition: "all 0.2s ease",
-              boxShadow:
-                isLoading || !input.trim()
-                  ? "none"
-                  : "0 4px 12px rgba(0,102,204,0.3)",
-            }}
+            className="absolute right-1.5 w-11 h-11 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-md shadow-blue-500/20 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105 active:scale-95 transition-all"
           >
             {isLoading ? (
-              <Loader2
-                size={18}
-                style={{ animation: "spin 1s linear infinite" }}
-              />
+              <Loader2 size={18} className="animate-spin" />
             ) : (
               <Send size={16} />
             )}
           </button>
         </form>
-        <p
-          style={{
-            textAlign: "center",
-            fontSize: 11,
-            color: "var(--colors-ink-muted-24)",
-            marginTop: 8,
-            fontWeight: 500,
-          }}
-        >
+        <p className="text-center text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-medium">
           {locale === "ko"
             ? "AI는 프로필에 등록된 검증된 데이터만을 기반으로 답변합니다."
             : "AI responses are based solely on your verified profile data."}
         </p>
-      </div>
-
-      {/* Keyframe for spinner */}
-      <style jsx>{`
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
+      </footer>
     </div>
   );
 }

@@ -11,6 +11,7 @@ import { Logger } from "@/lib/logger";
  * ChatPage Component.
  * B2C Student Chat workspace page. Loads the student's profile from /api/student/profile
  * and renders the premium ProfileChat component inside the student AppNav shell.
+ * Redesigned fully with custom Tailwind CSS utility classes and clean dark mode layout.
  * 
  * @returns {JSX.Element} The rendered student chat workspace page.
  */
@@ -40,43 +41,27 @@ export default function ChatPage() {
 
   if (!ready || loading) {
     return (
-      <div className="app-shell" style={{ alignItems: "center", justifyContent: "center" }}>
+      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 items-center justify-center">
         <AppNav mode="student" locale="ko" />
-        <div style={{ 
-          flex: 1, 
-          display: "grid", 
-          placeItems: "center",
-          background: "var(--colors-surface-white)"
-        }}>
-          <div style={{ textAlign: "center" }}>
+        <div className="flex-1 grid place-items-center bg-white dark:bg-slate-900 h-screen">
+          <div className="text-center">
             <Loader2 
               size={32} 
-              color="var(--colors-primary)" 
-              style={{ animation: "spin 1s linear infinite", marginBottom: 12 }} 
+              className="animate-spin mb-3 text-blue-600 dark:text-blue-400 mx-auto" 
             />
-            <p style={{ fontSize: 14, color: "var(--colors-ink-muted-48)", fontWeight: 500 }}>
+            <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
               프로필 로딩 중...
             </p>
           </div>
         </div>
-        <style jsx>{`
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
       </div>
     );
   }
 
   return (
-    <div className="app-shell">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
       <AppNav mode="student" locale={locale} />
-      <main style={{ 
-        flex: 1, 
-        background: "var(--colors-surface-white)",
-        overflow: "hidden"
-      }}>
+      <main className="flex-1 bg-white dark:bg-slate-900 overflow-hidden">
         <ProfileChat 
           profile={{
             gpa: profile?.gpa,
