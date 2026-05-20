@@ -44,9 +44,7 @@ export default function LandingPage() {
             fontSize: "clamp(42px, 6vw, 84px)", 
             lineHeight: 1.1, 
             marginBottom: 32,
-            background: "linear-gradient(180deg, #1d1d1f 0%, #434343 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
+            color: "var(--colors-ink)",
             fontWeight: 800
           }}>
             Crafting the Future <br /> of Global Admissions.

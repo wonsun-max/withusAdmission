@@ -14,7 +14,7 @@ export function Footer() {
     <footer style={{ 
       background: "var(--colors-surface-pearl)", 
       padding: "80px 40px", 
-      borderTop: "1px solid rgba(0,0,0,0.05)"
+      borderTop: "var(--border-hairline)"
     }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 48 }}>
         <div style={{ gridColumn: "span 2" }}>

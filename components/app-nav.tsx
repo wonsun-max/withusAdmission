@@ -11,6 +11,7 @@ import {
   GraduationCap,
   LayoutDashboard,
   LogOut,
+  MessageCircle,
   PenLine,
   ShieldCheck,
   Sparkles,
@@ -31,6 +32,7 @@ type NavItem = {
 const STUDENT_NAV: NavItem[] = [
   { href: "/b2c/workspace",   icon: LayoutDashboard, labelKo: "대시보드",     labelEn: "Dashboard" },
   { href: "/b2c/profile",     icon: UserCircle,      labelKo: "나의 스펙",     labelEn: "My Profile" },
+  { href: "/b2c/chat",        icon: MessageCircle,   labelKo: "AI 상담",      labelEn: "AI Chat" },
   { href: "/b2c/ocr",         icon: FileSearch,      labelKo: "서류 검토",     labelEn: "OCR Review" },
   { href: "/b2c/universities",icon: Target,          labelKo: "목표 대학",     labelEn: "Universities" },
   { href: "/b2c/evaluation",  icon: FlaskConical,    labelKo: "스펙 분석",     labelEn: "Evaluation" },
@@ -47,6 +49,16 @@ const CONSULTANT_NAV: NavItem[] = [
 
 type Props = { mode: NavMode; locale?: "ko" | "en" };
 
+/**
+ * AppNav Component.
+ * The persistent side navigation bar for the WithUs Admission system.
+ * Supports both Student (B2C) and Consultant (B2B) modes with localizable navigation links.
+ * 
+ * @param {Props} props - Component props.
+ * @param {"student" | "consultant"} props.mode - The navigation mode dashboard context.
+ * @param {"ko" | "en"} [props.locale="ko"] - The preferred language locale for rendering labels.
+ * @returns {JSX.Element} The rendered navigation sidebar.
+ */
 export function AppNav({ mode, locale = "ko" }: Props) {
   const pathname = usePathname();
   const router = useRouter();
