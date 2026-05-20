@@ -252,19 +252,14 @@ export default function WorkspaceHubPage() {
 
                     {/* School Actions Panel */}
                     <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex gap-2">
-                      <button
-                        onClick={() => handleLaunchChat(app.guidelineId)}
-                        disabled={isLaunching}
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold text-white rounded-xl transition-all hover:brightness-110 active:scale-98 disabled:opacity-50"
+                      <Link
+                        href={`/b2c/universities/${app.guidelineId}`}
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold text-white rounded-xl transition-all hover:brightness-110 active:scale-98"
                         style={{ backgroundColor: schoolMeta.brandColor }}
                       >
-                        {isLaunching ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : (
-                          <MessageSquareShare className="w-3.5 h-3.5" />
-                        )}
-                        {locale === "ko" ? "AI 자소서 작성" : "Draft with AI"}
-                      </button>
+                        <GraduationCap className="w-3.5 h-3.5" />
+                        {locale === "ko" ? "대학 대시보드 열기" : "Open Dashboard"}
+                      </Link>
                       <Link
                         href={`/b2c/tailoring?guidelineId=${app.guidelineId}`}
                         className="inline-flex items-center justify-center px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700/80 rounded-xl transition-all active:scale-98 border border-slate-200/50 dark:border-slate-700/40"

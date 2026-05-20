@@ -128,146 +128,27 @@ export default function ChatWorkspaceClient({ essay }: ChatWorkspaceProps) {
     : essay.guideline.requirements;
 
   return (
-    <div className="flex flex-1 h-full overflow-hidden bg-slate-50 dark:bg-slate-950 font-sans">
-      {/* LEFT PANE: Guidelines & Workspace Details */}
-      <div className="w-1/3 hidden lg:flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 overflow-y-auto relative shrink-0">
-        
-        {/* Dynamic School Glow Sphere (Premium Glassmorphism Effect) */}
-        <div 
-          className="absolute -top-20 -left-20 w-80 h-80 rounded-full filter blur-[110px] opacity-20 pointer-events-none transition-all duration-700 animate-pulse"
-          style={{ backgroundColor: schoolMeta.brandColor }}
-        />
-
-        {/* Back Link */}
-        <div className="mb-6 relative z-10">
-          <Link 
-            href="/b2c/workspace" 
-            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
-          >
-            <ArrowLeft className="w-4.5 h-4.5" />
-            워크스페이스 대시보드로 돌아가기
-          </Link>
-        </div>
-
-        <div className="flex items-center gap-3 mb-2 relative z-10">
-          <div 
-            className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm border"
-            style={{ 
-              borderColor: `${schoolMeta.brandColor}30`, 
-              backgroundColor: `${schoolMeta.brandColor}10` 
-            }}
-          >
-            {schoolMeta.logoEmoji}
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
-              {schoolMeta.nameKo}
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-              {essay.guideline.major} 전공
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-6 space-y-6 relative z-10">
-          {/* Target Student Persona Banner (School specific) */}
-          <div 
-            className="p-5 rounded-2xl border backdrop-blur-xl shadow-sm transition-all duration-300"
-            style={{ 
-              borderColor: `${schoolMeta.brandColor}25`, 
-              background: `linear-gradient(135deg, ${schoolMeta.brandColor}06, rgba(255,255,255,0.8))` 
-            }}
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <GraduationCap className="w-5 h-5" style={{ color: schoolMeta.brandColor }} />
-              <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                대학 인재상 매칭 가이드
-              </h4>
-            </div>
-            <div className={`text-xs font-bold mb-1.5 ${schoolMeta.accentTextClass}`}>
-              {schoolMeta.wantedPersonaKo}
-            </div>
-            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              {schoolMeta.wantedPersonaDescKo}
-            </p>
-          </div>
-
-          {/* Guideline Requirements */}
-          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800/60 shadow-xs">
-            <h3 className="font-bold text-sm flex items-center gap-2 mb-4 text-slate-700 dark:text-slate-300">
-              <FileText className="w-4 h-4" />
-              모집요강 질문 및 규정
-            </h3>
-            
-            {requirementsObj && requirementsObj.prompts ? (
-              <div className="space-y-4">
-                {requirementsObj.prompts.map((p: any) => (
-                  <div key={p.id} className="p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl shadow-2xs">
-                    <div className="flex justify-between items-center mb-1.5">
-                      <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-sm" style={{ backgroundColor: `${schoolMeta.brandColor}15`, color: schoolMeta.brandColor }}>
-                        문항 {p.id}
-                      </span>
-                      {p.limit && (
-                        <span className="text-[10px] text-slate-400 font-medium">
-                          최대 {p.limit}자
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-semibold">
-                      {p.title || p.question}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : requirementsObj && Object.entries(requirementsObj).map(([key, val]: any) => (
-              <div key={key} className="mb-4 last:mb-0">
-                <span className="inline-block px-2 py-0.5 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold rounded mb-1.5">
-                  {key}
-                </span>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap">
-                  {typeof val === 'string' ? val : JSON.stringify(val)}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div 
-            className="p-4 rounded-xl border flex items-start gap-2.5"
-            style={{ 
-              borderColor: `${schoolMeta.brandColor}15`, 
-              backgroundColor: `${schoolMeta.brandColor}03` 
-            }}
-          >
-            <Sparkles className="w-4.5 h-4.5 text-amber-500 shrink-0 mt-0.5" />
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              우측 AI 채팅창은 **{schoolMeta.nameKo} 전담 에이전트**로 세팅되어 작동합니다. 인재상 규격을 완벽히 녹여낼 수 있도록 대화를 편하게 주도해 가십시오.
-            </p>
-          </div>
-        </div>
-      </div>
+    <div className="flex flex-1 h-full overflow-hidden bg-transparent font-sans">
 
       {/* RIGHT PANE: Customized Interactive AI Chat Workspace */}
       <div className="flex-1 flex flex-col bg-slate-50/50 dark:bg-slate-900/40 relative h-full overflow-hidden">
         
         {/* Dynamic Mobile/Tablet Header */}
-        <header className="lg:hidden p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
+        <header className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
-            <Link href="/b2c/workspace" className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
             <div>
               <h3 className="font-bold text-sm text-slate-800 dark:text-slate-100 flex items-center gap-1">
                 <span>{schoolMeta.logoEmoji}</span>
-                {schoolMeta.nameKo}
+                {schoolMeta.nameKo} AI 전담 컨설턴트
               </h3>
-              <p className="text-[10px] text-slate-400 font-medium">AI Consultant Chat</p>
+              <p className="text-[10px] text-slate-400 font-medium">자유롭게 학교 관련 정보를 질문하거나 자소서 작성을 시작해보세요.</p>
             </div>
           </div>
           <span 
             className="text-[10px] font-bold px-2 py-0.5 rounded-full"
             style={{ backgroundColor: `${schoolMeta.brandColor}15`, color: schoolMeta.brandColor }}
           >
-            {schoolMeta.wantedPersonaKo.slice(0, 10)}...
+            {schoolMeta.wantedPersonaKo.slice(0, 15)}...
           </span>
         </header>
 
