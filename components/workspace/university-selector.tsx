@@ -45,9 +45,11 @@ export function UniversitySelector({ locale, profile, targetGuidelineIds = [], o
 
   const filtered = useMemo(() => {
     return dbGuidelines.filter(g => 
-      g.university.toLowerCase().includes(search.toLowerCase()) ||
-      g.major.toLowerCase().includes(search.toLowerCase()) ||
-      (g.universityKo && g.universityKo.includes(search))
+      g.major !== "General" &&
+      g.major !== "General (모집 단위 전체)" &&
+      (g.university.toLowerCase().includes(search.toLowerCase()) ||
+       g.major.toLowerCase().includes(search.toLowerCase()) ||
+       (g.universityKo && g.universityKo.includes(search)))
     );
   }, [dbGuidelines, search]);
 

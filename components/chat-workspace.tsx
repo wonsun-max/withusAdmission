@@ -139,9 +139,9 @@ export default function ChatWorkspaceClient({ essay }: ChatWorkspaceProps) {
             <div>
               <h3 className="font-bold text-sm text-slate-800 dark:text-slate-100 flex items-center gap-1">
                 <span>{schoolMeta.logoEmoji}</span>
-                {schoolMeta.nameKo} AI 전담 컨설턴트
+                {schoolMeta.nameKo} 전담 입학사정관
               </h3>
-              <p className="text-[10px] text-slate-400 font-medium">자유롭게 학교 관련 정보를 질문하거나 자소서 작성을 시작해보세요.</p>
+              <p className="text-[10px] text-slate-400 font-medium">대학 인재상 기반 심층 모의 인터뷰를 진행하고 자소서를 완성해 보세요.</p>
             </div>
           </div>
           <span 
@@ -203,7 +203,7 @@ export default function ChatWorkspaceClient({ essay }: ChatWorkspaceProps) {
                       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b border-slate-100 dark:border-slate-700/50">
                         <Sparkles className="w-4 h-4 text-amber-500" />
                         <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                          {schoolMeta.nameKo} AI 전담 컨설팅 시작
+                          {schoolMeta.nameKo} 전담 입학사정관 인터뷰
                         </span>
                       </div>
                     )}

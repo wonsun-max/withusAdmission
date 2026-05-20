@@ -51,7 +51,7 @@ export function useWorkspaceState() {
         evaluationData: data.evaluationResult || approvedDoc?.ocrData || null,
         selectedThemeId: data.selectedThemeId || "",
         storyAnswer: data.storyAnswer || "",
-        targetGuidelineIds: data.targetGuidelineIds || [],
+        targetGuidelineIds: data.applications?.map((app: any) => app.guidelineId) || [],
         locale: data.locale || "ko",
       };
       

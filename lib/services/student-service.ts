@@ -12,6 +12,8 @@ export class StudentService {
       include: {
         user: true,
         documents: true,
+        academicRecords: true,
+        activities: true,
         applications: {
           include: {
             guideline: true,
@@ -65,6 +67,54 @@ export class StudentService {
           guidelineId: { notIn: data.targetGuidelineIds }
         }
       });
+    }
+
+    return profile;
+  }
+
+  /**
+   * Updates the student's spec (GPA, academic records, and activities).
+   */
+  static async updateSpec(userId: string, data: {
+    gpa?: number;
+    academicRecords?: Array<{ subject: string; grade: string; credit?: number }>;
+    activities?: Array<{ title: string; description: string }>;
+  }) {
+    // 1. Update GPA
+    const profile = await db.studentProfile.update({
+      where: { userId },
+      data: {
+        gpa: data.gpa,
+      },
+    });
+
+    // 2. Update Academic Records (Replace all for simplicity, or upsert)
+    if (data.academicRecords) {
+      await db.academicRecord.deleteMany({ where: { studentId: userId } });
+      if (data.academicRecords.length > 0) {
+        await db.academicRecord.createMany({
+          data: data.academicRecords.map(r => ({
+            studentId: userId,
+            subject: r.subject,
+            grade: r.grade,
+            credit: r.credit || 1,
+          })),
+        });
+      }
+    }
+
+    // 3. Update Activities
+    if (data.activities) {
+      await db.activity.deleteMany({ where: { studentId: userId } });
+      if (data.activities.length > 0) {
+        await db.activity.createMany({
+          data: data.activities.map(a => ({
+            studentId: userId,
+            title: a.title,
+            description: a.description,
+          })),
+        });
+      }
     }
 
     return profile;

@@ -174,7 +174,7 @@ export default function WorkspaceHubPage() {
                 {locale === "ko" ? "나의 대학별 맞춤 AI 워크스페이스" : "My Custom AI Workspaces"}
               </h2>
               <p className="text-xs text-slate-400 mt-1">
-                {locale === "ko" ? "선택하신 대학교의 핵심 인재상(인재상)에 따라 커스텀 훈련된 AI 코치가 배정됩니다." : "Each target school assigns a custom-tuned AI consultant matching their official student persona."}
+                {locale === "ko" ? "선택하신 대학교의 핵심 인재상(인재상)에 따라 공식 입학사정관(Admissions Officer)이 배정됩니다." : "Each target school assigns a custom-tuned AI admissions officer matching their official student persona."}
               </p>
             </div>
             {applications.length > 0 && (
