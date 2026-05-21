@@ -49,10 +49,25 @@ export async function POST(
       update: {},
     });
 
-    // Load student spec for context injection
-    const spec = await db.studentSpec.findUnique({ where: { userId } });
+    // Load student spec for context injection, including individual documents
+    const spec = await db.studentSpec.findUnique({ 
+      where: { userId },
+      include: { documents: true }
+    });
+    
     const specContext = spec?.analysisResult
       ? JSON.stringify(spec.analysisResult, null, 2)
+      : null;
+
+    const filesContext = spec?.documents && spec.documents.length > 0
+      ? spec.documents.map((doc) => ({
+          fileName: doc.fileName,
+          mimeType: doc.mimeType,
+          fileSize: doc.fileSize,
+          isProcessed: doc.isProcessed,
+          createdAt: doc.createdAt,
+          parsedData: doc.parsedData, // The raw parsed JSON extracted from this specific file
+        }))
       : null;
 
     // Load or create session
@@ -75,8 +90,14 @@ export async function POST(
     // Load guidelines RAG context
     const guidelines = GuidelineLoaderService.getGuidelines(slug);
 
-    // Build system prompt
-    const systemPrompt = buildSystemPrompt(meta, mode, specContext, guidelines);
+    // Build system prompt with student spec and raw uploaded files context
+    const systemPrompt = buildSystemPrompt(
+      meta, 
+      mode, 
+      specContext, 
+      filesContext ? JSON.stringify(filesContext, null, 2) : null, 
+      guidelines
+    );
 
     // Build message history for OpenAI
     const history = (session.messages ?? []).map((m) => ({
@@ -211,18 +232,23 @@ function buildSystemPrompt(
   meta: ReturnType<typeof getUniversityMeta>,
   mode: string,
   specContext: string | null,
+  filesContext: string | null,
   guidelines: string | null
 ): string {
   const specSection = specContext
-    ? `\n\n## 학생 스펙 (업로드된 문서 AI 분석 결과)\n\`\`\`json\n${specContext}\n\`\`\`\n위 스펙을 완전히 파악하고, 이 학생의 강점과 약점을 깊이 이해한 상태에서 대화하십시오. 없는 사실을 지어내거나 추측해서 작성하면 절대 안 되며, 오직 학생 스펙 문서에 드러난 사실만을 활용하십시오.`
+    ? `\n\n## 학생 스펙 (업로드된 모든 서류 통합 AI 분석 결과)\n\`\`\`json\n${specContext}\n\`\`\`\n위 스펙을 완전히 파악하고, 이 학생의 강점과 약점을 깊이 이해한 상태에서 대화하십시오. 없는 사실을 지어내거나 추측해서 작성하면 절대 안 되며, 오직 학생 스펙 문서에 드러난 사실만을 활용하십시오.`
     : "\n\n## 주의: 아직 학생이 스펙 문서를 업로드하지 않았습니다. 일반적인 입시 상담을 진행하되, 스펙 업로드를 권유하십시오.";
+
+  const filesSection = filesContext
+    ? `\n\n## 학생이 업로드한 원본 서류 목록 및 개별 파일 상세 분석 결과\n학생이 직접 업로드한 원본 파일 정보와 개별 문서별 분석 데이터입니다:\n\`\`\`json\n${filesContext}\n\`\`\`\n학생과 대화할 때 학생이 제출한 구체적 서류 파일 목록을 정확하게 인지하고 상담에 활용하십시오. 예: "성적표 파일(Transcript.pdf)을 보니 11학년 성적이 대단하시네요", "봉사활동 증명서가 업로드되어 있네요"와 같이 구체적으로 파일을 언급하며 호응하거나 크로스체크 하십시오.`
+    : "";
 
   const guidelinesSection = guidelines
     ? `\n\n## 공식 2026학년도 대학 입학 모집요강 정보 (RAG)\n${guidelines}\n\n위의 공식 모집요강 내용을 철저히 지키십시오. 자소서 분량 제한, 지원 자격(3년/12년 해외체류), 필수 제출 서류 및 일정 등에 대해 절대 허구의 내용을 지어내어 상담하지 말고 오직 요강 내 명시된 팩트에 기반해 답변하십시오.`
     : "";
 
   if (mode === "essay") {
-    return `${meta.personaPrompt}${specSection}${guidelinesSection}
+    return `${meta.personaPrompt}${specSection}${filesSection}${guidelinesSection}
 
 ## 자소서 작성 모드
 당신은 지금 학생의 자기소개서 작성을 직접 도와야 합니다.
@@ -233,7 +259,7 @@ function buildSystemPrompt(
 - 글자수 제한이 있으면 반드시 준수하십시오.`;
   }
 
-  return `${meta.personaPrompt}${specSection}${guidelinesSection}
+  return `${meta.personaPrompt}${specSection}${filesSection}${guidelinesSection}
 
 ## 대화 규칙
 - 한국어로 응답하십시오.
