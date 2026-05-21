@@ -3,13 +3,14 @@ import { DocumentParserService } from "@/lib/services/document-parser";
 import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { createClient } from "@/utils/supabase/server";
+import { mergeAnalysisResults } from "@/lib/services/spec-merger";
 
 /**
  * POST /api/spec/analyze
- * 파일 업로드 → AI 분석 → StudentSpec DB 저장.
+ * 파일 업로드 → AI 분석 → 기존 문서들과 통합 병합 → StudentSpec DB 저장.
  *
- * Why: 실제 로그인 유저의 세션에서 userId를 추출해 각 학생의 스펙을
- * 완전히 분리 저장합니다. demo-user 하드코딩을 완전히 제거합니다.
+ * Why: 사용자가 복수의 서류를 자유롭게 나눠서 업로드해도 모든 문서가 유실되지 않고
+ * 전체 스펙이 누적 병합(Incremental Merging)되도록 개선하여, "they could add files like howmuch want" 요구를 실현합니다.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -28,7 +29,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "파일을 업로드해주세요." }, { status: 400 });
     }
 
-    // User가 DB에 존재하는지 보장 (콜백에서 생성되지만 방어적으로 처리)
+    // User가 DB에 존재하는지 보장
     await db.user.upsert({
       where: { id: userId },
       create: {
@@ -39,15 +40,15 @@ export async function POST(req: NextRequest) {
       update: {},
     });
 
-    // StudentSpec upsert
+    // StudentSpec 분석 중 상태로 설정
     await db.studentSpec.upsert({
       where: { userId },
       create: { userId, analysisStatus: "ANALYZING" },
       update: { analysisStatus: "ANALYZING" },
     });
 
-    // 파일 병렬 처리
-    const parseResults = await Promise.all(
+    // 파일 병렬 처리 및 파싱 결과 DB 개별 문서로 임시 저장
+    await Promise.all(
       files.map(async (file) => {
         try {
           const structured = await DocumentParserService.extractStructuredData(file);
@@ -63,18 +64,19 @@ export async function POST(req: NextRequest) {
               isProcessed: true,
             },
           });
-
-          return structured;
         } catch (err) {
           logger.error("Document parse failed", { file: file.name, err });
-          return null;
         }
       })
     );
 
-    const validResults = parseResults.filter(Boolean);
+    // 사용자의 모든 처리 완료된 파일(기존 파일 + 새 파일)들을 DB에서 조회
+    // Why: 기존 파일 데이터의 누락을 완벽히 방지합니다.
+    const allDocs = await db.specDocument.findMany({
+      where: { specId: userId, isProcessed: true },
+    });
 
-    if (validResults.length === 0) {
+    if (allDocs.length === 0) {
       await db.studentSpec.update({
         where: { userId },
         data: { analysisStatus: "ERROR" },
@@ -82,8 +84,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "문서 분석에 실패했습니다." }, { status: 500 });
     }
 
-    const mergedResult = mergeAnalysisResults(validResults as Record<string, unknown>[]);
+    // 모든 문서의 parsedData를 취합해 일괄 병합
+    const allParsed = allDocs
+      .map((doc) => doc.parsedData)
+      .filter(Boolean) as Record<string, unknown>[];
 
+    const mergedResult = mergeAnalysisResults(allParsed);
+
+    // 최종 누적 병합 결과를 StudentSpec에 저장
     await db.studentSpec.update({
       where: { userId },
       data: {
@@ -103,7 +111,7 @@ export async function POST(req: NextRequest) {
 
 /**
  * GET /api/spec/analyze
- * 현재 로그인 유저의 스펙 분석 결과 조회.
+ * 현재 로그인 유저의 모든 스펙 문서 정보와 통합 분석 결과를 조회.
  */
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
@@ -124,41 +132,4 @@ export async function GET(req: NextRequest) {
     logger.error("Spec GET error", { error });
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });
   }
-}
-
-function mergeAnalysisResults(results: Record<string, unknown>[]): Record<string, unknown> {
-  const merged: Record<string, unknown> = {
-    persona: {},
-    academic: { subjects: [] },
-    activities: [],
-    awards: [],
-    tests: [],
-    residency: {},
-    personalInfo: {},
-  };
-
-  for (const result of results) {
-    if (result.persona) {
-      merged.persona = { ...(merged.persona as object), ...(result.persona as object) };
-    }
-    if (result.academic) {
-      const existing = merged.academic as Record<string, unknown>;
-      const incoming = result.academic as Record<string, unknown>;
-      merged.academic = {
-        ...existing,
-        ...incoming,
-        subjects: [
-          ...((existing.subjects as unknown[]) ?? []),
-          ...((incoming.subjects as unknown[]) ?? []),
-        ],
-      };
-    }
-    if (Array.isArray(result.activities)) (merged.activities as unknown[]).push(...result.activities);
-    if (Array.isArray(result.awards)) (merged.awards as unknown[]).push(...result.awards);
-    if (Array.isArray(result.tests)) (merged.tests as unknown[]).push(...result.tests);
-    if (result.residency) merged.residency = { ...(merged.residency as object), ...(result.residency as object) };
-    if (result.personalInfo) merged.personalInfo = { ...(merged.personalInfo as object), ...(result.personalInfo as object) };
-  }
-
-  return merged;
 }
