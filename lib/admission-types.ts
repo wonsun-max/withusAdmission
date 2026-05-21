@@ -35,10 +35,14 @@ export type SpecAnalysisResult = {
     gpaScale?: string;      // "4.0", "5.0", "100점"
     trajectory?: string;    // AI analysis of grade trend
     subjects: AcademicSubject[];
+    semesters?: AcademicSemester[]; // Granular semester grades
   };
 
-  /** Extracurricular activities, clubs, volunteering, etc. */
+  /** Extracurricular activities, clubs, etc. */
   activities: ActivityRecord[];
+
+  /** Dedicated volunteer records */
+  volunteers?: VolunteerRecord[];
 
   /** Awards and honors */
   awards: AwardRecord[];
@@ -75,16 +79,40 @@ export type AcademicSubject = {
   confidence: number;     // 0.0-1.0 extraction confidence
 };
 
+export type AcademicSemester = {
+  grade: string;          // "10", "11", "12", etc.
+  semester: string;       // "1st Semester", "2nd Semester", "Full Year", etc.
+  courses: DetailedCourse[];
+};
+
+export type DetailedCourse = {
+  name: string;
+  score: string;
+  unit?: string;          // Credits/Units count
+  teacherComment?: string; // AI remarks or teacher comment
+};
+
 export type ActivityRecord = {
   name: string;
   role?: string;
   period?: string;
-  impact?: string;  // AI-generated significance statement
+  description?: string;   // Granular activity content/duties
+  impact?: string;        // AI-generated significance statement
+};
+
+export type VolunteerRecord = {
+  organization: string;
+  hours?: string;
+  period?: string;
+  description?: string;   // Volunteer duties
+  impact?: string;
 };
 
 export type AwardRecord = {
   name: string;
   date?: string;
+  rank?: string;          // Gold, Silver, 1st place, etc.
+  description?: string;   // Accomplishment detail
   significance?: string;
 };
 

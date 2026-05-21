@@ -1,29 +1,129 @@
-.root { animation: fadeIn 0.6s ease; }
+.root {
+  animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
 
-/* ─── Hero / Persona ─── */
+/* ─── 👤 1. Personal Profile Header ─── */
+.personalBanner {
+  background: linear-gradient(135deg, rgba(0, 102, 204, 0.05) 0%, rgba(88, 86, 214, 0.03) 100%), var(--colors-surface-white);
+  border: 1px solid rgba(0, 102, 204, 0.08);
+  border-radius: var(--rounded-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-premium);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.personalHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.personalAvatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(0, 102, 204, 0.08);
+  border: 1px solid rgba(0, 102, 204, 0.15);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.05);
+}
+
+.personalMain {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.studentName {
+  font-size: clamp(20px, 2.5vw, 24px);
+  font-weight: 800;
+  font-family: 'Outfit', sans-serif;
+  color: var(--colors-ink);
+  letter-spacing: -0.02em;
+}
+
+.studentMeta {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--colors-ink-muted-64);
+}
+
+.personalGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.personalCard {
+  background: var(--colors-surface-pearl);
+  border: var(--border-hairline);
+  border-radius: var(--rounded-md);
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.personalCard:hover {
+  transform: translateY(-2px);
+}
+
+.personalIcon {
+  color: var(--colors-primary);
+  opacity: 0.8;
+}
+
+.personalText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.personalLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--colors-ink-muted-48);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.personalValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--colors-ink);
+}
+
+/* ─── 🧬 2. Hero / Persona ─── */
 .hero {
-  background: linear-gradient(135deg, rgba(0, 102, 204, 0.06) 0%, rgba(88, 86, 214, 0.04) 100%);
+  background: linear-gradient(135deg, rgba(0, 102, 204, 0.06) 0%, rgba(88, 86, 214, 0.04) 100%), var(--colors-surface-white);
   border: var(--border-hairline);
   border-radius: var(--rounded-lg);
   padding: 40px;
-  margin-bottom: 24px;
   position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow-premium);
 }
 
 .hero::before {
   content: "";
   position: absolute;
   top: -40px; right: -40px;
-  width: 200px; height: 200px;
+  width: 240px; height: 240px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 102, 204, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(0, 102, 204, 0.06) 0%, transparent 70%);
 }
 
 .personaBadge {
   display: inline-block;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--colors-primary);
@@ -35,7 +135,7 @@
 }
 
 .personaTitle {
-  font-size: clamp(20px, 3vw, 28px);
+  font-size: clamp(22px, 3vw, 28px);
   font-family: 'Outfit', sans-serif;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -49,26 +149,33 @@
   line-height: 1.7;
   color: var(--colors-ink-muted-64);
   margin-bottom: 20px;
-  max-width: 700px;
+  max-width: 800px;
 }
 
 .tags { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .tag {
-  background: rgba(0, 102, 204, 0.08);
+  background: rgba(0, 102, 204, 0.06);
   color: var(--colors-primary);
-  border: 1px solid rgba(0, 102, 204, 0.15);
+  border: 1px solid rgba(0, 102, 204, 0.12);
   border-radius: 99px;
   padding: 5px 14px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
-/* ─── Grid ─── */
+.tag:hover {
+  background: var(--colors-primary);
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* ─── 🔲 Grid System ─── */
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: 24px;
 }
 
 .wide { grid-column: 1 / -1; }
@@ -77,88 +184,292 @@
 .section {
   background: var(--colors-surface-white);
   border: var(--border-hairline);
-  border-radius: var(--rounded-md);
-  padding: 24px;
+  border-radius: var(--rounded-lg);
+  padding: 32px;
   box-shadow: var(--shadow-premium);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
 }
 
 .section:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.07);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
 }
 
 .sectionTitle {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 800;
   color: var(--colors-ink);
-  margin-bottom: 16px;
-  padding-bottom: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
   border-bottom: var(--border-hairline);
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.01em;
 }
 
-/* ─── Academic ─── */
-.academicMeta { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+/* ─── 🎓 Academic Details & Transcript ─── */
+.academicMeta { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
 
 .metaItem {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   background: var(--colors-surface-pearl);
-  border-radius: var(--rounded-sm);
-  padding: 10px 14px;
-  min-width: 100px;
+  border: var(--border-hairline);
+  border-radius: var(--rounded-md);
+  padding: 12px 18px;
+  flex: 1;
+  min-width: 130px;
 }
 
-.metaLabel { font-size: 11px; font-weight: 600; color: var(--colors-ink-muted-48); text-transform: uppercase; letter-spacing: 0.06em; }
-.metaValue { font-size: 15px; font-weight: 600; color: var(--colors-ink); }
+.metaLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--colors-ink-muted-48);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.metaValue { font-size: 16px; font-weight: 700; color: var(--colors-ink); }
 
 .trajectory {
   font-size: 14px;
   color: var(--colors-ink-muted-64);
-  line-height: 1.6;
-  margin-bottom: 16px;
-  padding: 12px 16px;
+  line-height: 1.7;
+  margin-bottom: 24px;
+  padding: 16px 20px;
   background: rgba(0, 102, 204, 0.03);
-  border-left: 3px solid var(--colors-primary);
-  border-radius: 0 8px 8px 0;
+  border-left: 4px solid var(--colors-primary);
+  border-radius: 0 var(--rounded-md) var(--rounded-md) 0;
+}
+
+.transcriptSection {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.subSectionTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--colors-ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: -0.01em;
+}
+
+/* Grade Tabs */
+.gradeTabs {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  background: var(--colors-surface-pearl);
+  border-radius: var(--rounded-md);
+  align-self: flex-start;
+  border: var(--border-hairline);
+  margin-bottom: 8px;
+}
+
+.gradeTabBtn {
+  position: relative;
+  padding: 8px 16px;
+  border-radius: var(--rounded-sm);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--colors-ink-muted-64);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.gradeTabBtn:hover {
+  color: var(--colors-ink);
+}
+
+.activeTab {
+  color: var(--colors-primary);
+  font-weight: 700;
+}
+
+.activeTabLine {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 100%;
+  background: var(--colors-surface-white);
+  border-radius: var(--rounded-sm);
+  border: var(--border-hairline);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  z-index: -1;
+}
+
+/* Transcript Tables */
+.semesterList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.semesterCard {
+  background: var(--colors-surface-white);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--rounded-md);
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.015);
+}
+
+.semesterHeader {
+  background: var(--colors-surface-pearl);
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.semesterTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--colors-ink);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.courseTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.courseTable th {
+  padding: 12px 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--colors-ink-muted-48);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: rgba(0, 0, 0, 0.01);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.courseRow {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  transition: background-color 0.15s ease;
+}
+
+.courseRow:last-child {
+  border-bottom: none;
+}
+
+.courseRow:hover {
+  background-color: rgba(0, 102, 204, 0.015);
+}
+
+.courseName {
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--colors-ink);
+  width: 30%;
+}
+
+.courseScore {
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--colors-primary);
+  width: 15%;
+}
+
+.courseUnit {
+  padding: 14px 20px;
+  font-size: 13px;
+  color: var(--colors-ink-muted-64);
+  width: 15%;
+}
+
+.courseComment {
+  padding: 14px 20px;
+  font-size: 13px;
+  color: var(--colors-ink-muted-64);
+  line-height: 1.6;
+  width: 40%;
+}
+
+.commentText {
+  display: block;
+}
+
+.emptyComment {
+  font-style: italic;
+  opacity: 0.5;
 }
 
 .subjectGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 10px;
-  margin-top: 8px;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .subjectItem {
   background: var(--colors-surface-pearl);
-  border-radius: var(--rounded-sm);
-  padding: 12px;
+  border: var(--border-hairline);
+  border-radius: var(--rounded-md);
+  padding: 14px;
 }
 
-.subjectName { font-size: 13px; font-weight: 600; color: var(--colors-ink); margin-bottom: 4px; }
+.subjectName { font-size: 13px; font-weight: 600; color: var(--colors-ink); margin-bottom: 6px; }
 .subjectScore { font-size: 18px; font-weight: 800; color: var(--colors-primary); margin-bottom: 4px; }
 .subjectNote { font-size: 11px; color: var(--colors-ink-muted-48); line-height: 1.4; }
 
-/* ─── Tests ─── */
-.testList { display: flex; flex-direction: column; gap: 10px; }
+/* ─── 📊 Standardized Tests ─── */
+.testList { display: flex; flex-direction: column; gap: 12px; }
 
 .testItem {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: var(--border-hairline);
+  gap: 16px;
+  padding: 14px;
+  border-radius: var(--rounded-md);
+  background: var(--colors-surface-pearl);
+  border: var(--border-hairline);
+  transition: transform 0.2s ease;
 }
 
-.testItem:last-child { border-bottom: none; }
-.testName { flex: 1; font-size: 14px; font-weight: 600; color: var(--colors-ink); }
-.testScore { font-size: 18px; font-weight: 800; color: var(--colors-primary); }
-.testDate { font-size: 12px; color: var(--colors-ink-muted-48); }
+.testItem:hover {
+  transform: scale(1.01);
+}
 
-/* ─── Residency ─── */
-.residencyInfo { display: flex; flex-direction: column; gap: 12px; }
+.testBadgeIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--rounded-sm);
+  background: rgba(0, 102, 204, 0.06);
+  border: 1px solid rgba(0, 102, 204, 0.1);
+  display: grid;
+  place-items: center;
+}
+
+.testContent {
+  flex: 1;
+}
+
+.testName { font-size: 14px; font-weight: 700; color: var(--colors-ink); margin-bottom: 2px; }
+.testDate { font-size: 11px; font-weight: 500; color: var(--colors-ink-muted-48); }
+.testScore { font-size: 18px; font-weight: 800; color: var(--colors-primary); }
+
+/* ─── ✈️ Residency & Entry/Exit Periods ─── */
+.residencyInfo { display: flex; flex-direction: column; gap: 16px; }
+
+.residencyMeta {
+  display: flex;
+  gap: 12px;
+}
 
 .eligibilityRow { display: flex; gap: 10px; margin-top: 4px; }
 
@@ -167,54 +478,325 @@
   align-items: center;
   gap: 6px;
   border-radius: 99px;
-  padding: 5px 14px;
+  padding: 6px 16px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   border: 1px solid;
 }
 
-.eligOk { background: rgba(16, 185, 129, 0.08); color: #059669; border-color: rgba(16, 185, 129, 0.2); }
-.eligNo { background: rgba(239, 68, 68, 0.08); color: #dc2626; border-color: rgba(239, 68, 68, 0.2); }
+.eligOk { background: rgba(16, 185, 129, 0.06); color: #059669; border-color: rgba(16, 185, 129, 0.15); }
+.eligNo { background: rgba(239, 68, 68, 0.06); color: #dc2626; border-color: rgba(239, 68, 68, 0.15); }
 .eligUnknown { background: var(--colors-surface-pearl); color: var(--colors-ink-muted-48); border-color: var(--colors-ink-muted-24); }
 
-.residencyNote { font-size: 13px; color: var(--colors-ink-muted-64); line-height: 1.5; }
-
-/* ─── Activities ─── */
-.activityList { display: flex; flex-direction: column; gap: 14px; }
-
-.activityItem {
+.residencyNoteWrapper {
+  display: flex;
+  gap: 8px;
   padding: 14px;
-  background: var(--colors-surface-pearl);
-  border-radius: var(--rounded-sm);
+  background: rgba(0, 102, 204, 0.02);
+  border: 1.5px dashed rgba(0, 102, 204, 0.1);
+  border-radius: var(--rounded-md);
+  align-items: flex-start;
 }
 
-.activityHeader { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
-.activityName { font-size: 14px; font-weight: 600; color: var(--colors-ink); }
+.residencyNote {
+  font-size: 13px;
+  color: var(--colors-ink-muted-64);
+  line-height: 1.6;
+}
+
+/* Timeline Periods */
+.timelineSection {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.timelineTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--colors-ink);
+  letter-spacing: -0.01em;
+}
+
+.timelineList {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-left: 20px;
+}
+
+.timelineList::before {
+  content: "";
+  position: absolute;
+  top: 6px; bottom: 6px; left: 6px;
+  width: 1.5px;
+  background: rgba(0, 102, 204, 0.12);
+}
+
+.timelineItem {
+  position: relative;
+  padding-bottom: 16px;
+}
+
+.timelineItem:last-child {
+  padding-bottom: 0;
+}
+
+.timelineDot {
+  position: absolute;
+  left: -20px; top: 6px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--colors-primary);
+  border: 2px solid var(--colors-surface-white);
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.15);
+}
+
+.timelineContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.timelineCountry {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--colors-ink);
+}
+
+.timelineDates {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--colors-ink-muted-48);
+}
+
+/* ─── 👥 Extracurricular Activities & Clubs ─── */
+.activityList { display: flex; flex-direction: column; gap: 20px; }
+
+.activityItem {
+  padding: 24px;
+  background: var(--colors-surface-pearl);
+  border-radius: var(--rounded-lg);
+  border: var(--border-hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s ease;
+}
+
+.activityItem:hover {
+  transform: translateY(-1px);
+}
+
+.activityHeader { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+
+.activityIconBox {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--rounded-sm);
+  background: rgba(88, 86, 214, 0.06);
+  border: 1px solid rgba(88, 86, 214, 0.1);
+  display: grid;
+  place-items: center;
+}
+
+.activityName { font-size: 15px; font-weight: 700; color: var(--colors-ink); }
+
 .activityRole {
   font-size: 12px;
+  font-weight: 700;
   background: rgba(0, 102, 204, 0.08);
   color: var(--colors-primary);
   border-radius: 99px;
-  padding: 2px 10px;
+  padding: 3px 12px;
 }
-.activityPeriod { font-size: 12px; color: var(--colors-ink-muted-48); margin-left: auto; }
-.activityImpact { font-size: 13px; color: var(--colors-ink-muted-64); line-height: 1.5; }
 
-/* ─── Awards ─── */
+.activityPeriod {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--colors-ink-muted-48);
+  margin-left: auto;
+}
+
+.activityDescription {
+  font-size: 14px;
+  color: var(--colors-ink-muted-64);
+  line-height: 1.6;
+  padding-left: 2px;
+}
+
+.activityImpactWrapper {
+  background: var(--colors-surface-white);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: var(--rounded-md);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.impactLabel {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--colors-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.activityImpact { font-size: 13px; color: var(--colors-ink-muted-64); line-height: 1.6; }
+
+/* ─── 🤝 Volunteering Section ─── */
+.volunteerGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.volunteerCard {
+  background: var(--colors-surface-pearl);
+  border: var(--border-hairline);
+  border-radius: var(--rounded-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s ease;
+}
+
+.volunteerCard:hover {
+  transform: translateY(-2px);
+}
+
+.volunteerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.volunteerOrg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.volunteerOrgName {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--colors-ink);
+}
+
+.volunteerHoursBadge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  border-radius: 99px;
+  padding: 3px 10px;
+}
+
+.volunteerPeriod {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--colors-ink-muted-48);
+}
+
+.volunteerDesc {
+  font-size: 13px;
+  color: var(--colors-ink-muted-64);
+  line-height: 1.6;
+}
+
+.volunteerImpactWrapper {
+  background: var(--colors-surface-white);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: var(--rounded-sm);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.volunteerImpactLabel {
+  font-size: 9px;
+  font-weight: 800;
+  color: #059669;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.volunteerImpact {
+  font-size: 12px;
+  color: var(--colors-ink-muted-64);
+  line-height: 1.5;
+}
+
+/* ─── 🏆 Awards & Honors ─── */
 .awardList { display: flex; flex-direction: column; gap: 14px; }
 
 .awardItem {
-  padding: 14px;
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.06) 0%, transparent 100%);
-  border: 1px solid rgba(251, 191, 36, 0.15);
-  border-radius: var(--rounded-sm);
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, transparent 100%), var(--colors-surface-pearl);
+  border: 1px solid rgba(251, 191, 36, 0.12);
+  border-radius: var(--rounded-md);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.2s ease;
 }
 
-.awardName { font-size: 14px; font-weight: 600; color: var(--colors-ink); margin-bottom: 4px; }
-.awardDate { font-size: 12px; color: var(--colors-ink-muted-48); margin-bottom: 4px; }
-.awardNote { font-size: 13px; color: var(--colors-ink-muted-64); }
+.awardItem:hover {
+  transform: translateY(-2px);
+}
 
-/* ─── Strengths ─── */
+.awardHeader { display: flex; align-items: center; gap: 8px; }
+
+.awardName { font-size: 14px; font-weight: 700; color: var(--colors-ink); }
+
+.awardRankBadge {
+  font-size: 10px;
+  font-weight: 800;
+  background: rgba(251, 191, 36, 0.1);
+  color: #d97706;
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: var(--rounded-sm);
+  padding: 2px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.awardMetaRow { display: flex; justify-content: space-between; font-size: 11px; color: var(--colors-ink-muted-48); }
+
+.awardDescription {
+  font-size: 13px;
+  color: var(--colors-ink-muted-64);
+  line-height: 1.6;
+}
+
+.awardSignificanceWrapper {
+  background: var(--colors-surface-white);
+  border: 1px solid rgba(251, 191, 36, 0.08);
+  border-radius: var(--rounded-sm);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.awardSigLabel {
+  font-size: 9px;
+  font-weight: 800;
+  color: #b45309;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.awardNote { font-size: 12px; color: var(--colors-ink-muted-64); line-height: 1.5; }
+
+/* ─── 💪 Key Strengths ─── */
 .strengthList { list-style: none; display: flex; flex-direction: column; gap: 12px; }
 
 .strengthItem {
@@ -223,7 +805,7 @@
   gap: 10px;
   font-size: 14px;
   color: var(--colors-ink);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .strengthDot {
@@ -233,15 +815,26 @@
   background: var(--colors-primary);
   flex-shrink: 0;
   margin-top: 6px;
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.15);
 }
 
 /* ─── Keyframes ─── */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1024px) {
+  .volunteerGrid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
   .grid { grid-template-columns: 1fr; }
   .wide { grid-column: auto; }
+  .personalGrid { grid-template-columns: repeat(2, 1fr); }
+  .personalHeader { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .activityHeader { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .activityPeriod { margin-left: 0; }
+  .gradeTabs { width: 100%; overflow-x: auto; }
+  .section { padding: 20px; }
 }
