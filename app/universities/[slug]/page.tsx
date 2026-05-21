@@ -149,6 +149,62 @@ export default function UniversityPage() {
   const [studentSpec, setStudentSpec] = useState<any>(null);
   const [isLoadingSession, setIsLoadingSession] = useState(true);
 
+  // --- Real-time Fact-Checking Auditor States & Handlers ---
+  const [isFactChecking, setIsFactChecking] = useState(false);
+  const [auditResult, setAuditResult] = useState<any>(null);
+  const [showAudit, setShowAudit] = useState(false);
+  const [selectedSentenceIndex, setSelectedSentenceIndex] = useState<number | null>(null);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  /**
+   * Triggers the AI essay audit process by calling the verify-essay endpoint.
+   * 
+   * Why: Separating the audit invocation into a dedicated non-blocking handler 
+   * allows the UI to stay interactive while waiting for LLM evaluation.
+   */
+  const handleFactCheck = async () => {
+    if (!essayDraft || isFactChecking) return;
+    setIsFactChecking(true);
+    setSelectedSentenceIndex(null);
+    try {
+      const res = await fetch("/api/spec/verify-essay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ essayText: essayDraft }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAuditResult(data);
+        setShowAudit(true);
+      }
+    } catch (err) {
+      console.error("Fact check audit failed:", err);
+    } finally {
+      setIsFactChecking(false);
+    }
+  };
+
+  /**
+   * Memoized check to determine if any unverified/hallucinated claims remain.
+   * Why: Prevents submitting fake achievements to meet zero-tolerance standards.
+   */
+  const hasUnverifiedClaims = useMemo(() => {
+    return auditResult?.sentences?.some((s: any) => s.status === "UNVERIFIED") ?? false;
+  }, [auditResult]);
+
+  /**
+   * Simulates the final, secure university application submission.
+   * Why: Proves the end-to-end integration works and honors the block state constraint.
+   */
+  const handleFinalSubmit = async () => {
+    if (hasUnverifiedClaims || isSubmitting) return;
+    setIsSubmitting(true);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setIsSubmitting(false);
+    setShowSubmitModal(true);
+  };
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -443,22 +499,190 @@ export default function UniversityPage() {
             >
               <div className={styles.essayHeader}>
                 <div className={styles.essayTitle}>자소서 초안</div>
-                <button
-                  className={styles.copyBtn}
-                  onClick={() => navigator.clipboard.writeText(essayDraft)}
-                  disabled={!essayDraft}
-                  aria-label="초안 복사"
-                >
-                  복사
-                </button>
+                <div className={styles.headerActions}>
+                  {essayDraft && (
+                    <button
+                      className={`${styles.actionBtn} ${isFactChecking ? styles.btnLoading : ""}`}
+                      onClick={handleFactCheck}
+                      disabled={isFactChecking}
+                    >
+                      {isFactChecking ? "분석 중..." : "🔍 실시간 팩트체크"}
+                    </button>
+                  )}
+                  {auditResult && (
+                    <div className={styles.toggleGroup}>
+                      <button
+                        className={`${styles.toggleItem} ${!showAudit ? styles.toggleActive : ""}`}
+                        onClick={() => setShowAudit(false)}
+                      >
+                        편집
+                      </button>
+                      <button
+                        className={`${styles.toggleItem} ${showAudit ? styles.toggleActive : ""}`}
+                        onClick={() => setShowAudit(true)}
+                      >
+                        분석 결과
+                      </button>
+                    </div>
+                  )}
+                  <button
+                    className={styles.copyBtn}
+                    onClick={() => navigator.clipboard.writeText(essayDraft)}
+                    disabled={!essayDraft}
+                    aria-label="초안 복사"
+                  >
+                    복사
+                  </button>
+                </div>
               </div>
+
               {essayDraft ? (
-                <textarea
-                  className={styles.essayEditor}
-                  value={essayDraft}
-                  onChange={(e) => setEssayDraft(e.target.value)}
-                  placeholder="AI가 대화를 바탕으로 자소서 초안을 생성합니다."
-                />
+                showAudit && auditResult ? (
+                  <div className={styles.auditContainer}>
+                    {/* 1. Audit Summary Gauge & Banners */}
+                    <div className={styles.auditSummaryCard}>
+                      <div className={styles.gaugeSection}>
+                        <div className={styles.gaugeWrapper}>
+                          <svg className={styles.gaugeSvg} viewBox="0 0 36 36">
+                            <path
+                              className={styles.gaugeBg}
+                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                            />
+                            <path
+                              className={styles.gaugeFill}
+                              style={{
+                                strokeDasharray: `${auditResult.score}, 100`,
+                                stroke: auditResult.score > 80 ? '#10b981' : '#f59e0b'
+                              }}
+                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                            />
+                          </svg>
+                          <div className={styles.gaugeText}>
+                            <span className={styles.gaugeNum}>{auditResult.score}%</span>
+                            <span className={styles.gaugeLabel}>Fact Match</span>
+                          </div>
+                        </div>
+                        <div className={styles.summaryTextGroup}>
+                          <div className={styles.summaryTitle}>팩트체크 종합 리포트</div>
+                          <p className={styles.summaryDesc}>{auditResult.summary}</p>
+                        </div>
+                      </div>
+
+                      {hasUnverifiedClaims ? (
+                        <div className={styles.alertBanner}>
+                          <span className={styles.alertIcon}>🚨</span>
+                          <div className={styles.alertTextWrap}>
+                            <div className={styles.alertTitle}>최종 원서 접수 제한됨</div>
+                            <div className={styles.alertDesc}>
+                              학생부/활동 기록에서 교차 검증되지 않는 약력이 포함되어 있습니다. 허위 기재나 오차는 불합격 요인이 될 수 있습니다.
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className={styles.successBanner}>
+                          <span className={styles.successIcon}>🎉</span>
+                          <div className={styles.successTextWrap}>
+                            <div className={styles.successTitle}>원서 접수 즉시 가능</div>
+                            <div className={styles.successDesc}>
+                              기재된 모든 학업 성취도 및 수상/봉사 실적이 업로드된 원본 서류와 100% 매칭 완료되었습니다!
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 2. Interactive highlight-annotated text */}
+                    <div className={styles.auditedTextContainer}>
+                      <p className={styles.auditedParagraph}>
+                        {auditResult.sentences.map((sent: any, idx: number) => {
+                          let spanClass = styles.sentNeutral;
+                          if (sent.status === "VERIFIED") spanClass = styles.sentVerified;
+                          if (sent.status === "UNVERIFIED") spanClass = styles.sentUnverified;
+
+                          const isSelected = selectedSentenceIndex === idx;
+
+                          return (
+                            <span
+                              key={idx}
+                              className={`${styles.auditedSentence} ${spanClass} ${isSelected ? styles.sentSelected : ""}`}
+                              onClick={() => setSelectedSentenceIndex(isSelected ? null : idx)}
+                            >
+                              {sent.text}{" "}
+                            </span>
+                          );
+                        })}
+                      </p>
+
+                      {/* Absolute-floating popover tooltip card */}
+                      <AnimatePresence>
+                        {selectedSentenceIndex !== null && (() => {
+                          const sent = auditResult.sentences[selectedSentenceIndex];
+                          return (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 10 }}
+                              className={styles.floatingTooltip}
+                            >
+                              <div className={styles.tooltipHeader}>
+                                <span className={`${styles.statusBadge} ${styles[`badge_${sent.status}`]}`}>
+                                  {sent.status === "VERIFIED" && "✅ 교차검증 성공"}
+                                  {sent.status === "UNVERIFIED" && "❌ 증빙 확인 필요"}
+                                  {sent.status === "NEUTRAL" && "ℹ️ 서술형 진술"}
+                                </span>
+                                <span className={styles.tooltipCategory}>
+                                  {sent.category === "academic" && "📚 성적/이수"}
+                                  {sent.category === "award" && "🏆 수상기록"}
+                                  {sent.category === "activity" && "🤝 비교과/리더십"}
+                                  {sent.category === "volunteer" && "❤️ 봉사시간"}
+                                  {sent.category === "residency" && "✈️ 체류자격"}
+                                  {sent.category === "general" && "📄 일반"}
+                                </span>
+                              </div>
+                              <p className={styles.tooltipSentence}>"{sent.text}"</p>
+                              {sent.explanation && (
+                                <p className={styles.tooltipExplanation}>{sent.explanation}</p>
+                              )}
+                              {sent.matchedRecord && (
+                                <div className={styles.tooltipMatchedRecord}>
+                                  <span className={styles.matchLabel}>원본 증빙 확인 내역:</span>
+                                  <span className={styles.matchValue}>{sent.matchedRecord}</span>
+                                </div>
+                              )}
+                              <button
+                                className={styles.tooltipClose}
+                                onClick={() => setSelectedSentenceIndex(null)}
+                              >
+                                확인
+                              </button>
+                            </motion.div>
+                          );
+                        })()}
+                      </AnimatePresence>
+                    </div>
+
+                    {/* 3. Final simulated submission */}
+                    <div className={styles.submissionContainer}>
+                      <button
+                        className={`${styles.submitAppBtn} ${hasUnverifiedClaims ? styles.submitAppDisabled : ""}`}
+                        onClick={handleFinalSubmit}
+                        disabled={hasUnverifiedClaims || isSubmitting}
+                      >
+                        {isSubmitting ? "최종 원서 접수 중..." : `최종 ${meta.nameKo} 원서 접수하기 🎓`}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <textarea
+                    className={styles.essayEditor}
+                    value={essayDraft}
+                    onChange={(e) => {
+                      setEssayDraft(e.target.value);
+                      setAuditResult(null); // clear audit to enforce check
+                    }}
+                    placeholder="AI가 대화를 바탕으로 자소서 초안을 생성합니다."
+                  />
+                )
               ) : (
                 <div className={styles.essayEmpty}>
                   <div className={styles.essayEmptyIcon}>✍️</div>
@@ -584,6 +808,45 @@ export default function UniversityPage() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Submission Success Modal */}
+      <AnimatePresence>
+        {showSubmitModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={styles.modalOverlay}
+            onClick={() => setShowSubmitModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className={styles.modalContent}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className={styles.successConfetti}>🎉</div>
+              <h2 className={styles.modalTitle}>최종 대학 제출 성공!</h2>
+              <p className={styles.modalDesc}>
+                학생의 성적표, 출입국 기록, 활동 및 모든 기재 사실의 검증이
+                완벽하게 매칭되어 **{meta.nameKo}** 전형에 최종 원서 접수가 완료되었습니다.
+              </p>
+              <div className={styles.modalDocList}>
+                <div className={styles.modalDocItem}>✅ 13학년 성적증명서 검증 완료</div>
+                <div className={styles.modalDocItem}>✅ 출입국 사실증명서 자격조건 부합</div>
+                <div className={styles.modalDocItem}>✅ 100% 팩트 그라운디드 자기소개서 서명 필</div>
+              </div>
+              <button
+                className={styles.modalCloseBtn}
+                onClick={() => setShowSubmitModal(false)}
+              >
+                접수 확인 완료
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
