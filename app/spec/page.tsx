@@ -37,7 +37,6 @@ export default function SpecPage() {
 
     const formData = new FormData();
     files.forEach((f) => formData.append("files", f));
-    formData.append("userId", "demo-user");
 
     try {
       const res = await fetch("/api/spec/analyze", { method: "POST", body: formData });

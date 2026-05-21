@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { getUniversityMeta } from "@/lib/university-meta";
 import { GuidelineLoaderService } from "@/lib/services/guideline-loader";
+import { createClient } from "@/utils/supabase/server";
 
 /**
  * POST /api/chat/[slug]
@@ -16,7 +17,19 @@ export async function POST(
 ) {
   const { slug } = await params;
   const body = await req.json();
-  const { message, sessionId, mode = "chat", userId = "demo-user" } = body;
+  const { message, sessionId, mode = "chat" } = body;
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return new Response(JSON.stringify({ error: "로그인이 필요합니다." }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const userId = user.id;
 
   const meta = getUniversityMeta(slug);
   if (!meta || meta.slug === "default") {
@@ -24,6 +37,18 @@ export async function POST(
   }
 
   try {
+    // Ensure User record exists — EssaySession has a FK to User.
+    // Why: Without a parent User row, session.create() fails with P2003 FK violation.
+    await db.user.upsert({
+      where: { id: userId },
+      create: {
+        id: userId,
+        email: user.email!,
+        fullName: user.user_metadata?.full_name || user.email!.split("@")[0],
+      },
+      update: {},
+    });
+
     // Load student spec for context injection
     const spec = await db.studentSpec.findUnique({ where: { userId } });
     const specContext = spec?.analysisResult
@@ -135,8 +160,17 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("userId") ?? "demo-user";
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return new Response(JSON.stringify({ error: "로그인이 필요합니다." }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const userId = user.id;
 
   try {
     const session = await db.essaySession.findFirst({

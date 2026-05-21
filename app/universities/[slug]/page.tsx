@@ -179,7 +179,7 @@ export default function UniversityPage() {
       try {
         setIsLoadingSession(true);
         // Load chat session history and essay drafts
-        const sessionRes = await fetch(`/api/chat/${slug}?userId=demo-user`);
+        const sessionRes = await fetch(`/api/chat/${slug}`);
         if (sessionRes.ok) {
           const sessionData = await sessionRes.json();
           if (sessionData && sessionData.id) {
@@ -200,7 +200,7 @@ export default function UniversityPage() {
         }
 
         // Load student spec integrated documents
-        const specRes = await fetch(`/api/spec/analyze?userId=demo-user`);
+        const specRes = await fetch(`/api/spec/analyze`);
         if (specRes.ok) {
           const specData = await specRes.json();
           if (specData && specData.analysisResult) {
@@ -258,7 +258,7 @@ export default function UniversityPage() {
       const res = await fetch(`/api/chat/${slug}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: content, sessionId, mode, userId: "demo-user" }),
+        body: JSON.stringify({ message: content, sessionId, mode }),
       });
 
       if (!res.ok || !res.body) throw new Error("응답 수신 오류");

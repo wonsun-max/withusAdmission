@@ -2,15 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { DocumentParserService } from "@/lib/services/document-parser";
 import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
+import { createClient } from "@/utils/supabase/server";
 
 /**
  * POST /api/spec/analyze
- * Accepts multipart/form-data with one or more files.
- * Parses each file, runs AI structured extraction, merges results,
- * and persists to StudentSpec.analysisResult.
+ * 파일 업로드 → AI 분석 → StudentSpec DB 저장.
+ *
+ * Why: 실제 로그인 유저의 세션에서 userId를 추출해 각 학생의 스펙을
+ * 완전히 분리 저장합니다. demo-user 하드코딩을 완전히 제거합니다.
  */
 export async function POST(req: NextRequest) {
   try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
+    }
+
+    const userId = user.id;
     const formData = await req.formData();
     const files = formData.getAll("files") as File[];
 
@@ -18,23 +28,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "파일을 업로드해주세요." }, { status: 400 });
     }
 
-    // TODO: Replace with real auth. Using a demo userId for now.
-    const userId = formData.get("userId") as string ?? "demo-user";
+    // User가 DB에 존재하는지 보장 (콜백에서 생성되지만 방어적으로 처리)
+    await db.user.upsert({
+      where: { id: userId },
+      create: {
+        id: userId,
+        email: user.email!,
+        fullName: user.user_metadata?.full_name || user.email!.split("@")[0],
+      },
+      update: {},
+    });
 
-    // Ensure StudentSpec record exists
+    // StudentSpec upsert
     await db.studentSpec.upsert({
       where: { userId },
       create: { userId, analysisStatus: "ANALYZING" },
       update: { analysisStatus: "ANALYZING" },
     });
 
-    // Process files concurrently
+    // 파일 병렬 처리
     const parseResults = await Promise.all(
       files.map(async (file) => {
         try {
           const structured = await DocumentParserService.extractStructuredData(file);
 
-          // Persist individual document record
           await db.specDocument.create({
             data: {
               specId: userId,
@@ -65,7 +82,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "문서 분석에 실패했습니다." }, { status: 500 });
     }
 
-    // Merge multiple document results into one unified spec profile
     const mergedResult = mergeAnalysisResults(validResults as Record<string, unknown>[]);
 
     await db.studentSpec.update({
@@ -86,9 +102,30 @@ export async function POST(req: NextRequest) {
 }
 
 /**
- * Merges analysis results from multiple documents into a single unified profile.
- * Later documents override earlier ones for scalar fields; arrays are concatenated.
+ * GET /api/spec/analyze
+ * 현재 로그인 유저의 스펙 분석 결과 조회.
  */
+export async function GET(req: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
+  }
+
+  try {
+    const spec = await db.studentSpec.findUnique({
+      where: { userId: user.id },
+      include: { documents: { orderBy: { createdAt: "desc" } } },
+    });
+
+    return NextResponse.json(spec ?? { analysisStatus: "PENDING", analysisResult: null });
+  } catch (error) {
+    logger.error("Spec GET error", { error });
+    return NextResponse.json({ error: "서버 오류" }, { status: 500 });
+  }
+}
+
 function mergeAnalysisResults(results: Record<string, unknown>[]): Record<string, unknown> {
   const merged: Record<string, unknown> = {
     persona: {},
@@ -116,39 +153,12 @@ function mergeAnalysisResults(results: Record<string, unknown>[]): Record<string
         ],
       };
     }
-    if (Array.isArray(result.activities)) {
-      (merged.activities as unknown[]).push(...result.activities);
-    }
-    if (Array.isArray(result.awards)) {
-      (merged.awards as unknown[]).push(...result.awards);
-    }
-    if (Array.isArray(result.tests)) {
-      (merged.tests as unknown[]).push(...result.tests);
-    }
-    if (result.residency) {
-      merged.residency = { ...(merged.residency as object), ...(result.residency as object) };
-    }
-    if (result.personalInfo) {
-      merged.personalInfo = { ...(merged.personalInfo as object), ...(result.personalInfo as object) };
-    }
+    if (Array.isArray(result.activities)) (merged.activities as unknown[]).push(...result.activities);
+    if (Array.isArray(result.awards)) (merged.awards as unknown[]).push(...result.awards);
+    if (Array.isArray(result.tests)) (merged.tests as unknown[]).push(...result.tests);
+    if (result.residency) merged.residency = { ...(merged.residency as object), ...(result.residency as object) };
+    if (result.personalInfo) merged.personalInfo = { ...(merged.personalInfo as object), ...(result.personalInfo as object) };
   }
 
   return merged;
-}
-
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("userId") ?? "demo-user";
-
-  try {
-    const spec = await db.studentSpec.findUnique({
-      where: { userId },
-      include: { documents: { orderBy: { createdAt: "desc" } } },
-    });
-
-    return NextResponse.json(spec ?? { analysisStatus: "PENDING", analysisResult: null });
-  } catch (error) {
-    logger.error("Spec GET error", { error });
-    return NextResponse.json({ error: "서버 오류" }, { status: 500 });
-  }
 }
