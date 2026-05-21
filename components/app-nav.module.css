@@ -98,6 +98,7 @@
 .footer {
   padding: 16px 8px 0;
   border-top: var(--border-hairline);
+  margin-top: 12px;
 }
 
 .footerText {
@@ -106,3 +107,87 @@
   font-weight: 500;
   text-align: center;
 }
+
+/* ─── Profile Section ─── */
+.profileSection {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: var(--border-hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profileCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--rounded-md);
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  backdrop-filter: blur(8px);
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #5856d6, #0066cc);
+  color: white;
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(88, 86, 214, 0.2);
+  flex-shrink: 0;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+}
+
+.name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--colors-ink);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.email {
+  font-size: 11px;
+  color: var(--colors-ink-muted-48);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.logoutButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--rounded-md);
+  border: 1.5px solid var(--colors-ink-muted-16);
+  background: transparent;
+  color: var(--colors-ink-muted-64);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logoutButton:hover {
+  background: rgba(255, 59, 48, 0.06);
+  border-color: rgba(255, 59, 48, 0.15);
+  color: #ff3b30;
+}
+
