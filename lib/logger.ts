@@ -38,3 +38,13 @@ export class Logger {
     console.error(`[ERROR] [${new Date().toISOString()}] ${message}`, error || "");
   }
 }
+
+/**
+ * Singleton logger instance for convenient named-import usage.
+ * Maps to the static Logger methods.
+ */
+export const logger = {
+  info: (msg: string, ...params: any[]) => Logger.info(msg, ...params),
+  warn: (msg: string, ...params: any[]) => Logger.warn(msg, ...params),
+  error: (msg: string, error?: any) => Logger.error(msg, error),
+};

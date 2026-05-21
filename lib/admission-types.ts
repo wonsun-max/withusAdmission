@@ -1,145 +1,155 @@
-export type UserRole = "STUDENT" | "CONSULTANT" | "COUNSELOR";
+/**
+ * Core domain types for the withus Admission platform (v2).
+ * All student spec data flows through these types after AI extraction.
+ */
 
-export type SubscriptionPlan = "FREE" | "B2C_PASS" | "B2B_BASIC" | "B2B_PRO";
+// ─── Enums / Primitives ────────────────────────────────────────────────────
 
 export type AdmissionTrack = "SPECIAL_12YR" | "SPECIAL_3YR";
-
-export type AdmissionFamily = "overseas-special" | "international-stem";
-
 export type Locale = "en" | "ko";
+export type AnalysisStatus = "PENDING" | "ANALYZING" | "DONE" | "ERROR";
+export type MessageRole = "user" | "assistant" | "system";
+export type ChatMode = "chat" | "essay";
 
-export type AccessRole = "OWNER" | "PARENT" | "SCHOOL" | "CONSULTANT";
+// ─── Student Spec (AI-extracted, comprehensive) ───────────────────────────
 
-export type AccessLevel = "view" | "edit";
+/**
+ * Represents the full AI-analyzed profile of a student.
+ * This is NOT just scores — it's a holistic profile extracted from uploaded documents.
+ */
+export type SpecAnalysisResult = {
+  /** High-level narrative about the student as an applicant */
+  persona: {
+    title: string;          // e.g. "글로벌 환경에서 성장한 이공계 탐구형 인재"
+    summary: string;        // 3-4 sentence narrative
+    interests: string[];    // ["AI", "수학올림피아드", "환경공학"]
+    strengths: string[];    // Top 3 strengths extracted from documents
+  };
 
-export type ConsentStatus = "not-required" | "required" | "granted" | "blocked";
+  /** Academic record: GPA, subjects, trajectory */
+  academic: {
+    currentGrade?: string;  // e.g. "12학년" or "Grade 12"
+    school?: string;
+    curriculum?: string;    // "IB", "AP", "한국 교육과정", etc.
+    gpa?: string;
+    gpaScale?: string;      // "4.0", "5.0", "100점"
+    trajectory?: string;    // AI analysis of grade trend
+    subjects: AcademicSubject[];
+  };
 
-export type GuidelineSourceStatus = "official-imported" | "official-page-found" | "needs-official-pdf";
+  /** Extracurricular activities, clubs, volunteering, etc. */
+  activities: ActivityRecord[];
 
-export type BilingualText = {
-  en: string;
-  ko: string;
+  /** Awards and honors */
+  awards: AwardRecord[];
+
+  /** Standardized test scores (SAT, ACT, AP, IB, TOEFL, etc.) */
+  tests: TestRecord[];
+
+  /**
+   * Residency / overseas stay info — critical for 특례 eligibility.
+   * Extracted from passport, 출입국사실증명, attendance records.
+   */
+  residency?: {
+    totalYears?: string;
+    countries?: string[];
+    periods?: ResidencyPeriod[];
+    eligibility12yr?: boolean;
+    eligibility3yr?: boolean;
+    notes?: string;
+  };
+
+  /** Personal information extracted from documents */
+  personalInfo?: {
+    name?: string;
+    dateOfBirth?: string;
+    nationality?: string;
+    currentCountry?: string;
+  };
 };
 
-export type GpaRecord = {
-  subject: string;
+export type AcademicSubject = {
+  name: string;
   score: string;
-  scale?: string;
-  confidence: number;
-};
-
-export type TestRecord = {
-  exam: string;
-  score: string;
+  significance?: string;  // AI annotation: why this score matters
+  confidence: number;     // 0.0-1.0 extraction confidence
 };
 
 export type ActivityRecord = {
   name: string;
-  period: string;
-  role: string;
-  summary: string;
+  role?: string;
+  period?: string;
+  impact?: string;  // AI-generated significance statement
 };
 
-export type DocumentRequirement = {
-  id: string;
-  label: BilingualText;
-  helpText: BilingualText;
-  category: "identity" | "academic" | "activity" | "application" | "eligibility";
-  required: boolean;
-  status: "not-started" | "uploaded" | "ai-review" | "complete";
-};
-
-export type AccountLink = {
-  id: string;
+export type AwardRecord = {
   name: string;
-  role: AccessRole;
-  accessLevel: AccessLevel;
-  verified: boolean;
+  date?: string;
+  significance?: string;
 };
 
-export type ParentConsent = {
-  status: ConsentStatus;
-  requiredBecause: BilingualText;
-  grantedBy?: string;
-  grantedAt?: string;
+export type TestRecord = {
+  exam: string;    // "SAT", "TOEFL", "AP Calculus BC", etc.
+  score: string;
+  date?: string;
 };
 
-export type StudentProfile = {
+export type ResidencyPeriod = {
+  country: string;
+  from: string;
+  to: string;
+};
+
+// ─── Uploaded Documents ───────────────────────────────────────────────────
+
+export type SpecDocumentMeta = {
   id: string;
-  name: string;
-  dateOfBirth: string;
-  track: AdmissionTrack;
-  targetMajor: string;
-  countryContext: string;
-  parentConsent: ParentConsent;
-  accountLinks: AccountLink[];
-  gpaData: GpaRecord[];
-  standardizedTests: TestRecord[];
-  extracurriculars: ActivityRecord[];
-  approvedFacts: string[];
+  fileName: string;
+  mimeType: string;
+  fileSize: number;
+  isProcessed: boolean;
+  createdAt: string;
 };
 
-export type GuidelineSource = {
-  sourcePageUrl: string;
-  pdfUrl?: string;
-  status: GuidelineSourceStatus;
-  checkedAt: string;
-  notes: string;
-};
+// ─── University Chat & Essay ───────────────────────────────────────────────
 
-export type UniversityGuideline = {
+export type ChatMessage = {
   id: string;
-  university: string;
-  universityKo: string;
-  major: string;
-  track: AdmissionTrack;
-  admissionFamily: AdmissionFamily;
-  applicationYear: "2026";
-  sourceStatus: GuidelineSourceStatus;
-  source: GuidelineSource;
-  requiredDocs: string[];
-  documentRequirements: DocumentRequirement[];
-  essayPrompts: {
-    id: string;
-    prompt: string;
-    promptKo: string;
-    limit: string;
-  }[];
+  role: MessageRole;
+  content: string;
+  createdAt: string;
 };
 
-
-
-export type EvaluationResult = {
-  mode: "medical" | "general";
-  strengths: string[];
-  weaknesses: string[];
-  criticalWeakness?: string;
-  overallSummary: string;
-  themes: StoryTheme[];
-};
-
-export type StoryTheme = {
+export type EssaySessionState = {
   id: string;
-  title: string;
-  angle: string;
-  evidence: string[];
-  question: string;
+  universitySlug: string;
+  mode: ChatMode;
+  messages: ChatMessage[];
+  essayDraft?: string;
 };
 
-export type TailoredEssay = {
-  university: string;
-  prompt: string;
-  limit: string;
-  essay: string;
-  essayByLanguage: BilingualText;
-  factCheck: {
-    status: "passed" | "needs-review";
-    warnings: string[];
-    blockingReasons: string[];
-  };
-  submissionGate: {
-    canSubmit: boolean;
-    label: BilingualText;
-    reasons: string[];
-  };
+// ─── API Payloads ─────────────────────────────────────────────────────────
+
+export type AnalyzeSpecRequest = {
+  /** FormData key = 'files', multipart */
+  files: File[];
+};
+
+export type AnalyzeSpecResponse = {
+  status: AnalysisStatus;
+  result?: SpecAnalysisResult;
+  error?: string;
+};
+
+export type ChatRequest = {
+  sessionId?: string;
+  message: string;
+  mode: ChatMode;
+};
+
+export type ChatResponse = {
+  sessionId: string;
+  /** Streaming: each chunk is a delta string */
+  delta?: string;
+  essayDraft?: string;
 };

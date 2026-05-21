@@ -116,6 +116,13 @@ h1, h2, h3, h4 {
   margin: 0 auto;
 }
 
+.main-content {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  height: 100vh;
+}
+
 /* --- Premium Cards --- */
 
 .panel {

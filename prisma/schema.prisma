@@ -6,12 +6,11 @@ datasource db {
   provider = "postgresql"
 }
 
+// ── ENUMS ──
+
 enum Role {
   STUDENT
-  PARENT
-  CONSULTANT
-  SCHOOL
-  SUPER_ADMIN
+  ADMIN
 }
 
 enum Track {
@@ -19,217 +18,117 @@ enum Track {
   SPECIAL_3YR  // 3년 특례
 }
 
-enum DocumentType {
-  APPLICATION     // 1. 입학원서
-  ATTENDANCE      // 2, 3, 6. 수락기간, 해외학교기록, 재학사실증명
-  CONSENT         // 4. 학력조회동의서
-  TRANSCRIPT      // 5. 성적증명 (SPEC)
-  GRADUATION      // 7. 졸업증명
-  LANGUAGE        // 8. 한국어능력 (SPEC)
-  QUALIFICATION   // 9. 출입국사실증명
-  PASSPORT        // 10. 여권사본
-  ACTIVITY        // 11. 비교과활동 (SPEC)
-  ACTIVITY_LIST   // 12. 서류목록표
-  TEST_SCORE      // 13. 표준화학력평가 (SPEC)
-  SCHOOL_INFO     // 14. 학사일정표
-  SCHOOL_PROFILE  // 15. 고교 프로파일 (SPEC_CONTEXT)
-  OTHER
+enum AnalysisStatus {
+  PENDING
+  ANALYZING
+  DONE
+  ERROR
 }
 
-enum AccessLevel {
-  VIEW
-  EDIT
+enum MessageRole {
+  user
+  assistant
+  system
 }
 
 // ── 1. USERS ──
+
 model User {
-  id         String   @id @default(cuid())
-  role       Role     @default(STUDENT)
-  email      String   @unique
-  fullName   String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  // Relations
-  studentProfile     StudentProfile?       @relation("StudentToUser")
-  parentOf           StudentProfile[]      @relation("ParentToStudent")
-  consultantStudents ConsultantStudent[]   @relation("ConsultantToMap")
-  uploadedDocs       Document[]            @relation("UploaderToDocument") // 교사가 직접 올린 경우 추적
-}
-
-// ── 2. STUDENT PROFILES ──
-model StudentProfile {
-  userId     String  @id
-  user       User    @relation("StudentToUser", fields: [userId], references: [id], onDelete: Cascade)
-  
-  parentId   String?
-  parent     User?   @relation("ParentToStudent", fields: [parentId], references: [id], onDelete: SetNull)
-
-  track      Track?
-  status     String  @default("ONBOARDING") // ONBOARDING, OCR_REVIEW, EVALUATION, STORY_BUILDER, FINALIZED
-
-  // Persistence for work-in-progress state
-  selectedThemeId   String?
-  storyAnswer       String? @db.Text
-  
-  // Academic & Activity Profile
-  gpa               Float?
-  academicRecords   AcademicRecord[]
-  activities        Activity[]
-  
-  // Relations
-  documents     Document[]
-  essays        Essay[]
-  applications  UniversityApplication[] // New: University-specific application slots
-  consultants   ConsultantStudent[] @relation("StudentToMap")
-}
-
-// ── 2.5. ACADEMIC & ACTIVITY RECORDS ──
-model AcademicRecord {
-  id               String         @id @default(cuid())
-  studentId        String
-  student          StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-  
-  subject          String
-  grade            String
-  credit           Int            @default(1)
-  
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-}
-
-model Activity {
-  id               String         @id @default(cuid())
-  studentId        String
-  student          StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-  
-  title            String
-  description      String         @db.Text
-  
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-}
-
-// ── 3. UNIVERSITY APPLICATIONS (Per-school Slot) ──
-model UniversityApplication {
-  id           String       @id @default(cuid())
-  studentId    String
-  student      StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-
-  guidelineId  String
-  guideline    UniversityGuideline @relation(fields: [guidelineId], references: [id])
-
-  status       String       @default("DRAFT") // DRAFT, READY, SUBMITTED
-  
-  // School-specific AI insights
-  evaluationResult  Json?   // AI spec evaluation result specific to THIS university
-  
-  // Snapshotted checklist status
-  submissionStatus  Json?   // Computed status of required documents
-
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-
-  @@unique([studentId, guidelineId]) // One slot per university per student
-}
-
-// ── 4. DOCUMENTS (OCR & STORAGE) ──
-model Document {
-  id           String       @id @default(cuid())
-  studentId    String
-  student      StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-
-  uploaderId   String
-  uploader     User         @relation("UploaderToDocument", fields: [uploaderId], references: [id]) 
-
-  type         DocumentType
-  storagePath  String       
-  ocrData      Json?        
-  isApproved   Boolean      @default(false)
-
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-}
-
-// ── 5. ESSAYS (자소서 파이프라인) ──
-model Essay {
-  id             String       @id @default(cuid())
-  studentId      String
-  student        StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-
-  guidelineId    String
-  guideline      UniversityGuideline @relation(fields: [guidelineId], references: [id])
-
-  masterEn       String?      @db.Text
-  masterKo       String?      @db.Text
-  tailoredResult String?      @db.Text
-  
-  factWarnings   Json?        
-  
-  chatSessions   ChatSession[]
-
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-}
-
-// ── 6. CONSULTANT-STUDENT MAPPING (B2B 권한) ──
-model ConsultantStudent {
-  consultantId String
-  consultant   User         @relation("ConsultantToMap", fields: [consultantId], references: [id], onDelete: Cascade)
-
-  studentId    String
-  student      StudentProfile @relation("StudentToMap", fields: [studentId], references: [userId], onDelete: Cascade)
-
-  accessLevel  AccessLevel  @default(VIEW)
-  createdAt    DateTime     @default(now())
-
-  @@id([consultantId, studentId]) 
-}
-
-enum Intake {
-  MARCH
-  SEPTEMBER
-}
-
-// ── 7. UNIVERSITY GUIDELINES (관리자용) ──
-model UniversityGuideline {
-  id           String       @id
-  university   String
-  major        String
-  intake       Intake       @default(MARCH) 
-  requirements Json         
-  isActive     Boolean      @default(true)
-
-  applications UniversityApplication[]
-  essays       Essay[]
-}
-
-// ── 8. CHAT & AI INTERACTION ──
-enum MessageRole {
-  USER
-  ASSISTANT
-  SYSTEM
-}
-
-model ChatSession {
   id        String   @id @default(cuid())
-  essayId   String
-  essay     Essay    @relation(fields: [essayId], references: [id], onDelete: Cascade)
-  
-  messages  Message[]
+  role      Role     @default(STUDENT)
+  email     String   @unique
+  fullName  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  spec          StudentSpec?
+  essaySessions EssaySession[]
+}
+
+// ── 2. STUDENT SPEC ──
+// 학생의 모든 스펙 정보를 한 곳에 통합 관리.
+// 점수뿐 아니라 활동, 수상, 체류기간, 인적사항 등 모든 것을 포함.
+
+model StudentSpec {
+  userId String @id
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  track  Track?
+
+  // 업로드된 문서 목록
+  documents SpecDocument[]
+
+  // AI가 모든 문서를 통합 분석한 결과 (자동 갱신)
+  // 구조: { persona, academic, activities, awards, tests, residency, personalInfo }
+  analysisResult Json?
+  analysisStatus AnalysisStatus @default(PENDING)
+  lastAnalyzedAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Message {
-  id            String      @id @default(cuid())
-  sessionId     String
-  session       ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  
-  role          MessageRole
-  content       String      @db.Text
-  metadata      Json?       
-  
-  createdAt     DateTime    @default(now())
+// ── 3. SPEC DOCUMENTS ──
+// 학생이 업로드한 원본 파일들 (성적표, 활동증명, 여권 등 모두 포함)
+
+model SpecDocument {
+  id       String      @id @default(cuid())
+  specId   String
+  spec     StudentSpec @relation(fields: [specId], references: [userId], onDelete: Cascade)
+
+  fileName    String
+  storagePath String
+  mimeType    String
+  fileSize    Int      @default(0)
+
+  // Upstage/GPT-4o OCR 결과 원문
+  ocrText     String?  @db.Text
+
+  // 이 문서에서 추출된 구조화 데이터 (개별 문서 단위)
+  parsedData  Json?
+
+  isProcessed Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ── 4. ESSAY SESSIONS ──
+// 대학별 챗봇 대화 + 자소서 초안을 하나의 세션으로 통합 관리.
+// mode: 'chat' = 자유 상담, 'essay' = 자소서 작성 중심
+
+model EssaySession {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 대학 식별자 (lib/university-meta.ts 의 slug와 일치)
+  universitySlug String
+
+  // 'chat' | 'essay'
+  mode String @default("chat")
+
+  messages   EssayMessage[]
+  essayDraft String?        @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, universitySlug])
+}
+
+// ── 5. ESSAY MESSAGES ──
+
+model EssayMessage {
+  id        String       @id @default(cuid())
+  sessionId String
+  session   EssaySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  role    MessageRole
+  content String      @db.Text
+
+  // AI 메타데이터 (토큰 수, 모델명 등)
+  metadata Json?
+
+  createdAt DateTime @default(now())
 }

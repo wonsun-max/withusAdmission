@@ -1,61 +1,18 @@
-import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+/**
+ * Middleware — v2: 인증 없이 모든 경로 허용.
+ * /spec 과 /universities만 존재. 루트는 /spec 으로 리다이렉트.
+ */
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            request.cookies.set(name, value)
-          );
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
-        },
-      },
-    }
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // 보호된 경로 설정
-  const isAuthPage = request.nextUrl.pathname.startsWith("/login");
-  const isProtectedPage = 
-    request.nextUrl.pathname.startsWith("/b2c") || 
-    request.nextUrl.pathname.startsWith("/b2b");
-
-  if (!user && isProtectedPage) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  // 루트 → /spec 리다이렉트
+  if (request.nextUrl.pathname === "/") {
+    return NextResponse.redirect(new URL("/spec", request.url));
   }
 
-  if (user && isAuthPage) {
-    return NextResponse.redirect(new URL("/b2c/workspace", request.url));
-  }
-
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|auth/callback).*)",
-  ],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };

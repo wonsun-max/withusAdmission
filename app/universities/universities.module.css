@@ -1,0 +1,147 @@
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+.header { margin-bottom: 48px; }
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--colors-primary);
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: clamp(32px, 5vw, 52px);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--colors-ink);
+  margin-bottom: 16px;
+}
+
+.subtitle {
+  font-size: 17px;
+  color: var(--colors-ink-muted-64);
+  line-height: 1.7;
+  max-width: 560px;
+}
+
+/* ─── Grid ─── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+/* ─── Card ─── */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--colors-surface-white);
+  border-radius: var(--rounded-lg);
+  border: 1.5px solid transparent;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  padding: 32px;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s ease;
+  box-shadow: var(--shadow-premium);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover .cardArrow {
+  transform: translateX(4px);
+  opacity: 1;
+}
+
+.cardGlow {
+  position: absolute;
+  top: 0; right: 0;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  opacity: 0.6;
+  filter: blur(30px);
+}
+
+.card:hover .cardGlow { opacity: 1; }
+
+.cardBorder {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--rounded-lg);
+  border: 1.5px solid transparent;
+  pointer-events: none;
+  transition: border-color 0.25s ease, opacity 0.25s ease;
+  opacity: 0;
+}
+
+.card:hover .cardBorder { opacity: 0.3; border-color: currentColor; }
+
+.cardEmoji {
+  font-size: 40px;
+  margin-bottom: 20px;
+  line-height: 1;
+}
+
+.cardContent { flex: 1; }
+
+.cardName {
+  font-size: 22px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  color: var(--colors-ink);
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+.cardNameEn {
+  font-size: 12px;
+  color: var(--colors-ink-muted-48);
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.cardPersona {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--colors-primary);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.cardDesc {
+  font-size: 13px;
+  color: var(--colors-ink-muted-64);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardArrow {
+  position: absolute;
+  bottom: 24px; right: 24px;
+  font-size: 18px;
+  color: var(--colors-primary);
+  opacity: 0;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+@media (max-width: 768px) {
+  .grid { grid-template-columns: 1fr; }
+}
