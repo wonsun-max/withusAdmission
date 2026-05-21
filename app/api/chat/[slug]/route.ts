@@ -247,8 +247,16 @@ function buildSystemPrompt(
     ? `\n\n## 공식 2026학년도 대학 입학 모집요강 정보 (RAG)\n${guidelines}\n\n위의 공식 모집요강 내용을 철저히 지키십시오. 자소서 분량 제한, 지원 자격(3년/12년 해외체류), 필수 제출 서류 및 일정 등에 대해 절대 허구의 내용을 지어내어 상담하지 말고 오직 요강 내 명시된 팩트에 기반해 답변하십시오.`
     : "";
 
+  const diagnosisSection = specContext
+    ? `\n\n## 학생의 강점 및 약점 분석 및 진단 지침 (Strengths & Weaknesses Diagnosis)
+- 학생이 제출한 통합 스펙 데이터 및 서류 목록(성적표, 수상 실적, 봉사 등)을 철저히 분석하여, 이 학생만의 **명확한 강점(Strengths)**과 **약점/보완점(Weaknesses)**을 객관적이고 날카롭게 진단하십시오.
+- **강점(Strengths)**: 학생이 뛰어난 성취를 보인 과목(예: 특정 학기 수학 A+), 탁월한 수상 내역, 주도성이 돋보이는 비교과/동아리 활동 등을 짚어주고, 이를 지원학과와 연결하여 핵심 셀링 포인트로 어떻게 살릴지 조언하십시오.
+- **약점 및 보완점(Weaknesses)**: ${meta.nameKo}의 합격 기준 대비 부족하거나 우려되는 지점(예: 성적 하락세, 전공 관련 학술 활동 부족, 표준화 시험 성취 공백, 부족한 봉사 시간 등)을 솔직하게 지적하고, 이를 자기소개서 스토리라인이나 추가 스펙으로 극복할 수 있는 실질적인 보완책(Action Plan)을 반드시 제안하십시오.
+- 단순한 입에 발린 칭찬이나 모호한 격려에 그치지 마십시오. 학생에게 실질적이고 날카로운 입시 피드백을 주는 것이 최우선 임무입니다.`
+    : "";
+
   if (mode === "essay") {
-    return `${meta.personaPrompt}${specSection}${filesSection}${guidelinesSection}
+    return `${meta.personaPrompt}${specSection}${filesSection}${guidelinesSection}${diagnosisSection}
 
 ## 자소서 작성 모드
 당신은 지금 학생의 자기소개서 작성을 직접 도와야 합니다.
@@ -259,7 +267,7 @@ function buildSystemPrompt(
 - 글자수 제한이 있으면 반드시 준수하십시오.`;
   }
 
-  return `${meta.personaPrompt}${specSection}${filesSection}${guidelinesSection}
+  return `${meta.personaPrompt}${specSection}${filesSection}${guidelinesSection}${diagnosisSection}
 
 ## 대화 규칙
 - 한국어로 응답하십시오.
